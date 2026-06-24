@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riesgo Cardiovascular (RCV) de HEARTS (Sin laboratorios de colesterol)</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #e0e0e0; margin: 0; padding: 20px; color: #333; }
+        .app-container { background-color: #ffffff; padding: 25px; max-width: 450px; margin: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .intro-text { background-color: #e8f5e9; border-left: 5px solid #4caf50; padding: 12px; font-size: 14px; margin-bottom: 20px; border-radius: 4px; line-height: 1.5; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #444; }
+        input, select { width: 100%; padding: 12px; box-sizing: border-box; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; transition: border-color 0.3s, box-shadow 0.3s; }
+        input:focus, select:focus { border-color: #0056b3; outline: none; box-shadow: 0 0 5px rgba(0, 86, 179, 0.3); }
+        input:disabled, select:disabled { background-color: #e9ecef; color: #6c757d; border-color: #ced4da; }
+        .high-risk-section { background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #90caf9; }
+        button { background-color: #0056b3; color: white; border: none; cursor: pointer; margin-top: 10px; font-weight: bold; width: 100%; padding: 12px; font-size: 16px; border-radius: 6px; transition: background-color 0.3s; }
+        button:hover { background-color: #004494; }
+        .btn-reset { background-color: #6c757d; margin-top: 15px; }
+        .btn-reset:hover { background-color: #5a6268; }
+        #resultado-box { margin-top: 25px; padding: 20px; text-align: center; font-size: 22px; font-weight: bold; border-radius: 8px; display: none; color: black; border: 2px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .alerta-clinica { font-size: 14px; font-weight: normal; display: block; margin-top: 15px; text-align: left; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 6px; color: #333; }
+        ul { margin-top: 5px; padding-left: 20px; }
+        li { margin-bottom: 8px; }
+        .footer-legal { margin-top: 30px; font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 15px; text-align: justify; line-height: 1.5; }
+        .creditos { text-align: center; margin-top: 15px; font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px; margin-top: 0;">Riesgo Cardiovascular (RCV) de HEARTS</h2>
+    <h4 style="text-align: center; color: #555; margin-top: 0; margin-bottom: 20px;">(Sin laboratorios de colesterol)</h4>
+
+    <div class="intro-text">
+        <strong>Destinado a personal del primer nivel de atención:</strong> Recuerde que el Riesgo Cardiovascular (RCV) es la probabilidad que el paciente tiene de sufrir un evento como infarto o derrame cerebral en los próximos 10 años, pudiendo provocarle la muerte o invalidez. Estimarlo, tratarlo y prevenirlo a tiempo puede brindar muchos años de vida útil al paciente.
+    </div>
+
+    <div class="high-risk-section">
+        <div class="form-group">
+            <label>⚠️ ¿Tiene historia de enfermedad cardiovascular? (Infarto al corazón, derrame cerebral, o enfermedad vascular periférica)</label>
+            <select id="eventoCv" onchange="verificarBloqueos()">
+                <option value="no">No</option>
+                <option value="si">Sí</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>🩸 ¿Tiene enfermedad renal crónica?</label>
+            <select id="erc" onchange="verificarBloqueos()">
+                <option value="no">No</option>
+                <option value="si">Sí</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>🩺 ¿Tiene diabetes mellitus?</label>
+            <select id="dm" onchange="verificarBloqueos()">
+                <option value="no">No</option>
+                <option value="si">Sí</option>
+            </select>
+        </div>
+    </div>
+
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+
+    <div class="form-group">
+        <label>👤 Sexo</label>
+        <select id="sexo" class="var-estandar">
+            <option value="hombre">Masculino</option>
+            <option value="mujer">Femenino</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>🎂 Edad (años)</label>
+        <input type="number" id="edad" class="var-estandar" placeholder="Ej. 52">
+    </div>
+
+    <div class="form-group">
+        <label>🚬 Tabaquismo</label>
+        <select id="humo" class="var-estandar">
+            <option value="no">No</option>
+            <option value="si">Sí</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>⚖️ Peso (kg)</label>
+        <input type="number" id="peso" class="var-estandar" placeholder="Ej. 70" step="0.1">
+    </div>
+
+    <div class="form-group">
+        <label>📏 Talla (metros) <span style="color: #d32f2f;">(NO CENTÍMETROS)</span></label>
+        <input type="number" id="talla" class="var-estandar" placeholder="Ej. 1.65" step="0.01">
+    </div>
+
+    <div class="form-group">
+        <label>❤️ Presión Sistólica (mmHg)</label>
+        <input type="number" id="pas" class="var-estandar" placeholder="Ej. 145">
+    </div>
+
+    <button onclick="calcularRCV()">Calcular Riesgo</button>
+    <button class="btn-reset" onclick="reiniciar()">Nueva Consulta</button>
+
+    <div id="resultado-box">
+        <span id="valor-riesgo"></span><br>
+        <span id="imc-calculado" style="font-size: 15px; font-weight: normal; display: block; margin-top: 8px; line-height: 1.4;"></span>
+        <div class="alerta-clinica" id="mensaje-extra"></div>
+    </div>
+
+    <div class="footer-legal">
+        <p><em>Nota:</em> Esta calculadora es una herramienta de apoyo al tamizaje orientada a personal del primer nivel de atención y no sustituye el juicio clínico de un profesional médico. Diseñada para operar sin conexión a internet en áreas rurales.</p>
+        <div class="creditos">
+            <span style="display: block; margin-bottom: 8px; color: #0056b3;">Iniciativa para la implementación del Programa HEARTS (INCAP / MSPAS)</span>
+            Adaptación digital y desarrollo de interfaz:<br>Dr. Rafael Antonio Juárez Vargas.<br>
+            <span style="font-size: 10px; font-weight: normal; color: #888; display: block; margin-top: 8px;">Algoritmo clínico basado estrictamente en las Tablas de Estratificación de Riesgo Cardiovascular no basadas en laboratorio de HEARTS en las Américas / OPS / CIIPEC.</span>
+        </div>
+    </div>
+</div>
+
+    <script>
+        const matrizRiesgo = {
+            "hombre_si_40-44": [[2,2,3,3,4], [3,3,4,5,6], [4,5,6,7,8], [5,7,8,10,12], [8,9,11,13,16]],
+            "hombre_si_45-49": [[3,3,4,4,5], [4,4,5,6,7], [5,6,7,8,10], [7,8,10,11,14], [9,11,13,15,18]],
+            "hombre_si_50-54": [[3,4,5,6,7], [5,5,6,7,9], [6,7,9,10,12], [9,10,12,13,16], [12,13,15,18,21]],
+            "hombre_si_55-59": [[5,5,6,7,8], [6,7,8,9,11], [8,9,11,12,14], [11,12,14,16,18], [14,16,18,21,24]],
+            "hombre_si_60-64": [[6,7,8,9,10], [8,9,10,12,13], [11,12,13,15,17], [14,15,17,19,21], [17,19,22,24,27]],
+            "hombre_si_65-69": [[9,9,10,11,13], [11,12,13,14,16], [14,15,16,18,20], [17,19,20,22,25], [21,23,25,28,30]],
+            "hombre_si_70-74": [[11,12,13,14,16], [14,15,16,18,19], [17,19,20,22,23], [21,23,24,26,28], [26,28,30,32,34]],
+            
+            "hombre_no_40-44": [[1,1,1,2,2], [1,2,2,2,3], [2,2,3,3,4], [3,3,4,4,5], [4,5,5,6,8]],
+            "hombre_no_45-49": [[1,2,2,2,3], [2,2,3,3,4], [3,3,4,4,5], [4,4,5,6,7], [5,6,7,8,9]],
+            "hombre_no_50-54": [[2,2,3,3,3], [3,3,3,4,5], [4,4,5,5,6], [5,6,6,7,9], [7,8,9,10,12]],
+            "hombre_no_55-59": [[3,3,4,4,5], [4,4,5,5,6], [5,6,6,7,8], [7,7,8,10,11], [9,10,11,13,14]],
+            "hombre_no_60-64": [[4,5,5,6,6], [5,6,7,7,8], [7,8,9,10,11], [9,10,11,12,14], [11,13,14,16,18]],
+            "hombre_no_65-69": [[6,7,7,8,9], [8,8,9,10,11], [10,10,11,13,14], [12,13,14,16,17], [15,16,18,20,22]],
+            "hombre_no_70-74": [[9,9,10,11,12], [11,12,12,13,14], [13,14,15,16,18], [16,17,19,20,22], [20,21,23,25,26]],
+
+            "mujer_si_40-44": [[2,3,3,3,3], [3,3,4,4,5], [4,5,5,6,6], [6,7,7,8,8], [8,9,10,10,11]],
+            "mujer_si_45-49": [[3,3,4,4,4], [4,4,5,5,6], [6,6,6,7,7], [7,8,9,9,10], [10,11,11,12,13]],
+            "mujer_si_50-54": [[4,4,5,5,5], [5,6,6,6,7], [7,7,8,8,9], [9,10,10,11,12], [12,13,13,14,15]],
+            "mujer_si_55-59": [[5,6,6,6,7], [7,7,8,8,9], [9,9,10,10,11], [11,12,12,13,14], [14,15,16,17,18]],
+            "mujer_si_60-64": [[7,7,8,8,9], [9,9,10,10,11], [11,11,12,13,13], [13,14,15,16,17], [17,17,18,19,21]],
+            "mujer_si_65-69": [[9,9,10,10,11], [11,11,12,13,13], [13,14,15,15,16], [16,17,18,19,20], [20,21,22,23,24]],
+            "mujer_si_70-74": [[11,12,12,13,13], [14,14,15,16,16], [16,17,18,19,19], [20,20,21,22,23], [23,24,25,26,27]],
+
+            "mujer_no_40-44": [[1,1,1,1,1], [1,1,2,2,2], [2,2,2,2,2], [3,3,3,3,3], [4,4,4,4,4]],
+            "mujer_no_45-49": [[1,1,2,2,2], [2,2,2,2,2], [2,3,3,3,3], [3,4,4,4,4], [5,5,5,5,6]],
+            "mujer_no_50-54": [[2,2,2,2,2], [3,3,3,3,3], [3,4,4,4,4], [4,5,5,5,6], [6,6,6,7,7]],
+            "mujer_no_55-59": [[3,3,3,3,3], [4,4,4,4,4], [5,5,5,5,6], [6,6,6,7,7], [7,8,8,9,9]],
+            "mujer_no_60-64": [[4,4,4,5,5], [5,5,5,6,6], [6,6,7,7,7], [8,8,8,9,9], [10,10,11,11,12]],
+            "mujer_no_65-69": [[6,6,6,6,7], [7,7,7,8,8], [8,9,9,10,10], [10,11,11,12,12], [13,13,14,14,15]],
+            "mujer_no_70-74": [[8,8,8,9,9], [9,10,10,11,11], [11,12,12,13,13], [14,14,15,15,16], [16,17,18,18,19]]
+        };
+
+        function verificarBloqueos() {
+            const eventoCv = document.getElementById('eventoCv').value === 'si';
+            const erc = document.getElementById('erc').value === 'si';
+            const dm = document.getElementById('dm').value === 'si';
+            
+            const bloquear = eventoCv || erc || dm;
+            const campos = document.querySelectorAll('.var-estandar');
+            
+            campos.forEach(campo => {
+                campo.disabled = bloquear;
+            });
+        }
+
+        function mostrarCajaResultado(textoRiesgo, colorFondo, imcTexto, recomendacion) {
+            const box = document.getElementById('resultado-box');
+            box.style.display = "block";
+            box.style.backgroundColor = colorFondo;
+            
+            if (colorFondo === "#900c3f" || colorFondo === "#f44336") {
+                box.style.color = "white";
+            } else {
+                box.style.color = "black";
+            }
+
+            document.getElementById('valor-riesgo').innerText = textoRiesgo;
+            document.getElementById('imc-calculado').innerHTML = imcTexto;
+            document.getElementById('mensaje-extra').innerHTML = recomendacion;
+        }
+
+        function generarRecomendacion(riesgoNumerico, esSecundaria, tieneDM, tieneERC) {
+            const consejeria = "<div style='margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;'><b>Consejería general:</b> Estilo de vida saludable, dieta baja en grasas, sal, embutidos <b>(ver pág. 29 del cuadernillo auxiliar)</b>, y ejercicio de 30 minutos 5 días a la semana <b>(ver pág. 34 del cuadernillo auxiliar)</b>.</div>";
+            const recordatorioSigsa = "<div style='margin-top: 15px; padding-top: 12px; border-top: 1px solid #ddd; font-weight: bold; color: #d32f2f; text-align: center; font-size: 15px;'>⚠️ Recuerde escribir este dato y el nivel de riesgo en la FICHA AMARILLA y/o en el EXPEDIENTE del paciente, por favor.</div>";
+            
+            let detalles = "";
+
+            if (esSecundaria) {
+                detalles = "<ul><li><b>Referencia:</b> Se recomienda que el paciente sea visto al menos una vez en el Hospital distrital o CAP más cercano para evaluación completa por especialista de preferencia.</li><li><b>Manejo:</b> Recetar <b>Atorvastatina 40mg</b> cada 24 horas <span style='color: #d32f2f;'><i>(¡Recuerde anotar en el SIGSA como \"NO ENTREGADO\" si no hay disponible, por favor!)</i></span>. Procurar que la terapia antihipertensiva mantenga la PA en valores adecuados. <b>Meta de PA: menor a 130/80 mmHg (ver pág. 46 del cuadernillo compaginado).</b><br><small><i>*Para revisar el algoritmo completo de titulación farmacológica, consulte la pág. 46.</i></small></li><li><b>ASA:</b> Aspirina 100mg cada 24 horas.</li></ul>";
+            }
+            else if (riesgoNumerico >= 10 || tieneDM || tieneERC) {
+                let p_ayuda = tieneDM ? "pág. 46 y 48" : "pág. 46";
+                let viñetaPie = tieneDM ? "<li><b>Evaluación de extremidades:</b> Realizar el cuidado y tamizaje de pie diabético según la <b>pág. 40 del cuadernillo auxiliar</b>.</li>" : "";
+                
+                detalles = "<ul><li><b>Referencia:</b> Se recomienda que el paciente sea visto al menos una vez en el Hospital distrital o CAP más cercano para evaluación completa por especialista de preferencia.</li><li><b>Manejo:</b> Recetar <b>Atorvastatina 20mg</b> cada 24 horas <span style='color: #d32f2f;'><i>(¡Recuerde anotar en el SIGSA como \"NO ENTREGADO\" si no hay disponible, por favor!)</i></span>. Procurar que la terapia antihipertensiva mantenga la PA en valores adecuados. <b>Meta de PA: menor a 130/80 mmHg (ver pág. 46 del cuadernillo compaginado).</b><br><small><i>*Consulte los algoritmos terapéuticos específicos en la " + p_ayuda + " del cuadernillo.</i></small></li>" + viñetaPie + "<li><b>ASA:</b> NO indicado de rutina.</li></ul>";
+            }
+            else if (riesgoNumerico >= 5 && riesgoNumerico < 10) {
+                detalles = "<ul><li><b>Referencia:</b> Manejo en Puesto de Salud.</li><li><b>Manejo:</b> NO requiere Atorvastatina de rutina. Iniciar o ajustar medicamento para la presión SOLO si la PA se mantiene en 140/90 mmHg o más en varias visitas. <b>Meta de PA: menor a 140/90 mmHg (ver pág. 46 del cuadernillo compaginado).</b></li><li><b>ASA:</b> NO indicado.</li></ul>";
+            }
+            else {
+                detalles = "<ul><li><b>Referencia:</b> Manejo en Puesto de Salud.</li><li><b>Manejo:</b> Plan educacional para continuar estilo de vida saludable. No requiere Atorvastatina de rutina. <b>Meta de PA: menor a 140/90 mmHg (ver pág. 46 del cuadernillo compaginado).</b></li><li><b>ASA:</b> NO indicado.</li></ul>";
+            }
+
+            return consejeria + detalles + recordatorioSigsa;
+        }
+
+        function calcularRCV() {
+            const eventoCv = document.getElementById('eventoCv').value === 'si';
+            const erc = document.getElementById('erc').value === 'si';
+            const dm = document.getElementById('dm').value === 'si';
+
+            if (eventoCv) {
+                mostrarCajaResultado("Riesgo: Crítico (≥30%)", "#900c3f", "", generarRecomendacion(30, true, dm, erc));
+                return;
+            }
+            if (erc || dm) {
+                mostrarCajaResultado("Riesgo: Alto (10% a <20%)", "#ff9800", "", generarRecomendacion(15, false, dm, erc));
+                return;
+            }
+
+            const sexo = document.getElementById('sexo').value;
+            const edad = parseInt(document.getElementById('edad').value);
+            const humo = document.getElementById('humo').value;
+            const peso = parseFloat(document.getElementById('peso').value);
+            const talla = parseFloat(document.getElementById('talla').value);
+            const pas = parseInt(document.getElementById('pas').value);
+
+            if (!edad || !peso || !talla || !pas) {
+                alert("Por favor llene todos los campos numéricos.");
+                return;
+            }
+
+            const imc = peso / (talla * talla);
+
+            let clasificacionNutricional = "";
+            if (imc < 18.5) {
+                clasificacionNutricional = "Bajo Peso";
+            } else if (imc >= 18.5 && imc < 25) {
+                clasificacionNutricional = "Peso Normal";
+            } else if (imc >= 25 && imc < 30) {
+                clasificacionNutricional = "Sobrepeso <br><span style='color: #d32f2f; font-weight: bold; font-size: 13px;'>⚠️ Requiere realizar dieta, si fuera posible referencia con nutrición (ver pág. 29 del cuadernillo auxiliar).</span>";
+            } else {
+                clasificacionNutricional = "Obesidad <br><span style='color: #d32f2f; font-weight: bold; font-size: 13px;'>⚠️ Requiere realizar dieta, si fuera posible referencia con nutrición (ver pág. 29 del cuadernillo auxiliar).</span>";
+            }
+
+            const imcTextoCompleto = `<b>IMC Calculado:</b> ${imc.toFixed(1)} kg/m² — <b>${clasificacionNutricional}</b>`;
+
+            let edadCat = "";
+            if (edad >= 40 && edad <= 44) edadCat = "40-44";
+            else if (edad >= 45 && edad <= 49) edadCat = "45-49";
+            else if (edad >= 50 && edad <= 54) edadCat = "50-54";
+            else if (edad >= 55 && edad <= 59) edadCat = "55-59";
+            else if (edad >= 60 && edad <= 64) edadCat = "60-64";
+            else if (edad >= 65 && edad <= 69) edadCat = "65-69";
+            else if (edad >= 70 && edad <= 74) edadCat = "70-74";
+            else { alert("Edad fuera de rango de tabla (40-74 años). El tamizaje estándar aplica a este grupo."); return; }
+
+            let imcIdx = 0;
+            if (imc < 20) imcIdx = 0;
+            else if (imc >= 20 && imc < 25) imcIdx = 1;
+            else if (imc >= 25 && imc < 30) imcIdx = 2;
+            else if (imc >= 30 && imc < 35) imcIdx = 3;
+            else imcIdx = 4;
+
+            let pasIdx = 0;
+            if (pas < 120) pasIdx = 0;
+            else if (pas >= 120 && pas < 140) pasIdx = 1;
+            else if (pas >= 140 && pas < 160) pasIdx = 2;
+            else if (pas >= 160 && pas < 180) pasIdx = 3;
+            else pasIdx = 4;
+
+            const llaveMatriz = `${sexo}_${humo}_${edadCat}`;
+            const cuadroRiesgo = matrizRiesgo[llaveMatriz];
+
+            if (cuadroRiesgo) {
+                const riesgoFinal = cuadroRiesgo[pasIdx][imcIdx];
+                
+                let colorFondo = "";
+                let textoDescriptivo = "";
+                
+                if (riesgoFinal < 5) {
+                    colorFondo = "#8bc34a"; // Verde
+                    textoDescriptivo = `Bajo (<5%)`;
+                } else if (riesgoFinal >= 5 && riesgoFinal < 10) {
+                    colorFondo = "#ffeb3b"; // Amarillo
+                    textoDescriptivo = `Moderado (${riesgoFinal}%)`;
+                } else if (riesgoFinal >= 10 && riesgoFinal < 20) {
+                    colorFondo = "#ff9800"; // Naranja
+                    textoDescriptivo = `Alto (${riesgoFinal}%)`;
+                } else if (riesgoFinal >= 20 && riesgoFinal < 30) {
+                    colorFondo = "#f44336"; // Rojo
+                    textoDescriptivo = `Muy Alto (${riesgoFinal}%)`;
+                } else {
+                    colorFondo = "#900c3f"; // Corinto
+                    textoDescriptivo = `Crítico (${riesgoFinal}%)`;
+                }
+
+                const rec = generarRecomendacion(riesgoFinal, false, false, false);
+                mostrarCajaResultado(`Riesgo: ${textoDescriptivo}`, colorFondo, imcTextoCompleto, rec);
+            }
+        }
+
+        function reiniciar() {
+            document.getElementById('eventoCv').value = 'no';
+            document.getElementById('erc').value = 'no';
+            document.getElementById('dm').value = 'no';
+            
+            document.getElementById('edad').value = '';
+            document.getElementById('peso').value = '';
+            document.getElementById('talla').value = '';
+            document.getElementById('pas').value = '';
+            
+            verificarBloqueos();
+            
+            document.getElementById('resultado-box').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
