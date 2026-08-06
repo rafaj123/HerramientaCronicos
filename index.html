@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Herramientas de Primer Nivel</title>
+    <title>Plataforma de Apoyo - Enfermedades Crónicas</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 35px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        .container { max-width: 950px; margin: 0 auto; background: white; padding: 35px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
         h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2.2em; }
-        p.subtitle { color: #555; margin-bottom: 35px; font-size: 1.1em; }
+        p.subtitle { color: #555; margin-bottom: 25px; font-size: 1.1em; }
+        
+        .disclaimer { background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; margin-bottom: 35px; font-size: 0.9em; text-align: left; line-height: 1.5; border-radius: 4px; }
         
         .grid-menu {
             display: grid;
@@ -20,14 +22,14 @@
             background-color: #ffffff;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
-            padding: 30px 20px;
+            padding: 25px 20px;
             text-decoration: none;
             color: #333;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
@@ -36,8 +38,8 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        .menu-card h2 { margin: 0 0 10px 0; font-size: 1.5em; }
-        .menu-card p { margin: 0; font-size: 0.95em; color: #666; line-height: 1.4; }
+        .menu-card h2 { margin: 0 0 15px 0; font-size: 1.4em; }
+        .menu-card p { margin: 0; font-size: 0.95em; color: #555; line-height: 1.5; }
         
         .card-rcv { border-bottom: 6px solid #ffc107; }
         .card-rcv:hover { border-color: #ffc107; }
@@ -54,34 +56,45 @@
         .card-req { border-bottom: 6px solid #28a745; }
         .card-req:hover { border-color: #28a745; }
         .card-req h2 { color: #28a745; }
+
+        .footer-creditos { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 0.85em; color: #777; line-height: 1.6; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Plataforma Integral de Salud</h1>
-    <p class="subtitle">Seleccione la herramienta de apoyo clínico a utilizar:</p>
+    <h1>Plataforma de Apoyo para Enfermedades Crónicas</h1>
+    <p class="subtitle">Seleccione la herramienta clínica a utilizar:</p>
+
+    <div class="disclaimer">
+        <strong>⚠️ DESCARGO DE RESPONSABILIDAD:</strong> Las siguientes calculadoras son herramientas de apoyo logístico y educativo. No son documentos oficiales y NO pretenden sustituir el juicio clínico médico ni las normativas institucionales vigentes. Úsense con precaución.
+    </div>
 
     <div class="grid-menu">
         <a href="Calculadora_RCV.html" class="menu-card card-rcv">
-            <h2>1. Calculadora RCV</h2>
-            <p>Estratificación de Riesgo Cardiovascular (OMS)</p>
+            <h2>1. Calculadora Riesgo Cardiovascular</h2>
+            <p>Calcula la probabilidad de que el paciente tenga un infarto o derrame en los próximos 10 años.<br><br><strong>USAR PRIMERO antes de la herramienta de tratamiento de hipertensión.</strong></p>
         </a>
 
         <a href="Herramienta_HTA.html" class="menu-card card-hta">
             <h2>2. Algoritmo HTA</h2>
-            <p>Clasificación y escalonamiento de Hipertensión Arterial</p>
+            <p>Clasificación y escalonamiento del tratamiento en hipertensión arterial.</p>
         </a>
 
         <a href="Herramienta_DM2.html" class="menu-card card-dm">
             <h2>3. Algoritmo DM2</h2>
-            <p>Manejo e intensificación de Diabetes Mellitus tipo 2</p>
+            <p>Clasificación y escalonamiento del tratamiento en diabetes mellitus.</p>
         </a>
 
         <a href="Herramienta_Requisicion.html" class="menu-card card-req">
-            <h2>4. Requisición</h2>
-            <p>Cálculo logístico y stock para medicamentos</p>
+            <h2>4. Requisición de Medicamentos</h2>
+            <p>Cálculo exacto de los diferentes medicamentos necesarios en primer y segundo nivel para el tratamiento de enfermos crónicos (hipertensión, diabetes y riesgo cardiovascular).</p>
         </a>
+    </div>
+
+    <div class="footer-creditos">
+        <strong>Herramienta digital basada en los algoritmos del programa HEARTS OPS/OMS.</strong><br>
+        Interfaz y estandarización lógica realizada por el Dr. Rafael Antonio Juárez Vargas.
     </div>
 </div>
 
