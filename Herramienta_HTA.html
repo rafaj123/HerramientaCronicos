@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramienta HTA - Primer Nivel</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #2c3e50; }
+        .disclaimer { background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; margin-bottom: 20px; font-size: 0.9em; }
+        .section-card { border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background-color: #fafafa; }
+        .btn { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; width: 100%; font-weight: bold; }
+        .btn:hover { background-color: #0056b3; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="number"], select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 5px; }
+        .checkbox-item { display: flex; align-items: center; background: #eee; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .checkbox-item input { margin-right: 8px; }
+        .hidden { display: none; }
+        .result-box { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border-left: 5px solid #c3e6cb; margin-top: 20px; font-size: 1.1em; }
+        .alert-box { background-color: #f8d7da; color: #721c24; border-left: 5px solid #f5c6cb; }
+        .warning-box { background-color: #fff3cd; color: #856404; border-left: 5px solid #ffeeba; }
+        ul { margin-top: 5px; padding-left: 20px; }
+        .meta-text { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Herramienta de Apoyo para Tratamiento de HTA en Primer Nivel</h1>
+    <div class="disclaimer">
+        <strong>⚠️ DESCARGO DE RESPONSABILIDAD:</strong> Esta es una herramienta de apoyo al cálculo logístico y educativo. No es un documento oficial y NO pretende sustituir el juicio clínico ni las normativas vigentes. Úsese con precaución. Si un paciente presenta signos de alarma, refiera inmediatamente al nivel correspondiente.
+    </div>
+
+    <!-- SECCIÓN 1: Técnica -->
+    <div class="section-card">
+        <h2>1. Técnica Correcta de Toma de Presión Arterial</h2>
+        <p>Asegúrese de cumplir los siguientes criterios antes de la medición:</p>
+        <ul>
+            <li>Apoyar la espalda y los pies (no cruzar las piernas).</li>
+            <li>Tener la vejiga vacía.</li>
+            <li>No conversar.</li>
+            <li>Apoyar el brazo a la altura del corazón y colocar el brazalete sin ropa.</li>
+            <li>Usar el tamaño de brazalete adecuado.</li>
+            <li>Reposo de al menos 5 minutos, sin haber fumado o tomado café recientemente.</li>
+        </ul>
+    </div>
+
+    <!-- SECCIÓN 2: Mediciones -->
+    <div class="section-card">
+        <h2>2. Registro de Presión Arterial</h2>
+        <label>¿Cuántas veces tomará la presión arterial?</label>
+        <select id="numTomas" onchange="toggleTomas()">
+            <option value="1">1 Toma (Servicios con alta demanda/tiempo limitado)</option>
+            <option value="4">4 Tomas (Técnica ideal - 2 en cada brazo/1 min de separación)</option>
+        </select>
+
+        <div id="inputsTomas">
+            <!-- Generado por JS -->
+        </div>
+
+        <button class="btn" onclick="calcularPA()">Clasificar Presión Arterial</button>
+        <div id="resultadoPA" class="result-box hidden"></div>
+    </div>
+
+    <!-- SECCIÓN 3: Riesgo Cardiovascular (RCV) -->
+    <div class="section-card hidden" id="seccionRCV">
+        <h2>3. Riesgo Cardiovascular (RCV) y Metas</h2>
+        <label>Marque cuál es el riesgo cardiovascular calculado según la herramienta 1 (Calculadora de riesgo):</label>
+        <select id="riesgoCV" onchange="evaluarMetas()">
+            <option value="" disabled selected>Seleccione una opción...</option>
+            <option value="bajo">Riesgo Bajo (Menor a 5%) 🟢</option>
+            <option value="moderado">Riesgo Moderado (5% a <10%) 🟡</option>
+            <option value="alto">Riesgo Alto (≥10%, Diabetes Mellitus, Enf. Renal o Antecedente de infarto/derrame) 🟠</option>
+            <option value="muy_alto">Riesgo Muy Alto (20% a <30%) 🔴</option>
+            <option value="critico">Riesgo Crítico (≥30%) 🟣</option>
+        </select>
+        
+        <div id="resultadoMeta" class="result-box hidden" style="margin-top: 15px;"></div>
+    </div>
+
+    <!-- SECCIÓN 4: Tratamiento / Inventario -->
+    <div class="section-card hidden" id="seccionTratamiento">
+        <h2>4. Algoritmo de Tratamiento Local</h2>
+        
+        <label>Marque los medicamentos DISPONIBLES hoy en su farmacia:</label>
+        <div class="checkbox-group" id="inventario">
+            <label class="checkbox-item"><input type="checkbox" value="Enalapril 20mg"> Enalapril 20mg</label>
+            <label class="checkbox-item"><input type="checkbox" value="Irbersartan 150mg"> Irbesartán 150mg</label>
+            <label class="checkbox-item"><input type="checkbox" value="Hidroclorotiazida 50mg"> Hidroclorotiazida 50mg</label>
+            <label class="checkbox-item"><input type="checkbox" value="Hidroclorotiazida 25mg"> Hidroclorotiazida 25mg</label>
+            <label class="checkbox-item"><input type="checkbox" value="Amlodipino 5mg"> Amlodipino 5mg</label>
+        </div>
+
+        <label style="margin-top: 20px;">¿El paciente YA toma medicamento para la presión?</label>
+        <select id="pacienteConocido" onchange="toggleMedicacionActual()">
+            <option value="NO">NO (Paciente Nuevo / Diagnóstico Reciente)</option>
+            <option value="SI">SÍ (Ya tiene tratamiento)</option>
+        </select>
+
+        <div id="divMedicacionActual" class="hidden">
+            <label>Marque el tratamiento ACTUAL que toma el paciente (Puede seleccionar varias combinaciones):</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" class="medActual" value="Enalapril 10mg"> Enalapril 10 mg (media tableta de 20mg)</label>
+                <label class="checkbox-item"><input type="checkbox" class="medActual" value="Enalapril 20mg"> Enalapril 20 mg (1 tableta de 20mg)</label>
+                <label class="checkbox-item"><input type="checkbox" class="medActual" value="Irbersartan 150mg"> Irbesartán 150 mg (1 tableta de 150mg)</label>
+                <label class="checkbox-item"><input type="checkbox" class="medActual" value="Irbersartan 300mg"> Irbesartán 300 mg (2 tabletas de 150mg)</label>
+                <label class="checkbox-item"><input type="checkbox" class="medActual" value="Amlodipino 5mg"> Amlodipino 5 mg (1 tableta de 5mg)</label>
+                <label class="checkbox-item"><input type="checkbox" class="medActual" value="Amlodipino 10mg"> Amlodipino 10 mg (2 tabletas de 5mg)</label>
+                <label class="checkbox-item"><input type="checkbox" class="medActual" value="HCTZ 12.5mg"> Hidroclorotiazida 12.5 mg (media tableta de 25mg o un cuarto de tableta de 50mg)</label>
+                <label class="checkbox-item"><input type="checkbox" class="medActual" value="HCTZ 25mg"> Hidroclorotiazida 25 mg (1 tableta de 25mg o media tableta de 50mg)</label>
+                <label class="checkbox-item"><input type="checkbox" class="medActual" value="HCTZ 50mg"> Hidroclorotiazida 50 mg (1 tableta de 50mg)</label>
+            </div>
+        </div>
+
+        <button class="btn" onclick="calcularTratamiento()" style="background-color: #28a745;">Generar Recomendación de Tratamiento</button>
+        <div id="resultadoTx" class="result-box hidden"></div>
+    </div>
+
+</div>
+
+<script>
+    function toggleTomas() {
+        const num = document.getElementById('numTomas').value;
+        const container = document.getElementById('inputsTomas');
+        container.innerHTML = ''; 
+        
+        for (let i = 1; i <= num; i++) {
+            container.innerHTML += `
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label>Toma ${i} - Sistólica (mmHg)</label>
+                        <input type="number" id="sis${i}" placeholder="Ej. 120" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Toma ${i} - Diastólica (mmHg)</label>
+                        <input type="number" id="dia${i}" placeholder="Ej. 80" required>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function toggleMedicacionActual() {
+        const estado = document.getElementById('pacienteConocido').value;
+        const div = document.getElementById('divMedicacionActual');
+        if (estado === 'SI') {
+            div.classList.remove('hidden');
+        } else {
+            div.classList.add('hidden');
+            document.querySelectorAll('.medActual').forEach(cb => cb.checked = false);
+        }
+    }
+
+    let sysPromedio = 0;
+    let diaPromedio = 0;
+    let gradoHTA = ""; 
+    let enMeta = false;
+    let esEmergencia = false;
+
+    function calcularPA() {
+        const num = document.getElementById('numTomas').value;
+        let sysSum = 0, diaSum = 0;
+        let valid = true;
+
+        for (let i = 1; i <= num; i++) {
+            let s = parseInt(document.getElementById('sis'+i).value);
+            let d = parseInt(document.getElementById('dia'+i).value);
+            if (isNaN(s) || isNaN(d)) valid = false;
+            sysSum += s;
+            diaSum += d;
+        }
+
+        if (!valid) {
+            alert("Por favor ingrese todos los valores de presión arterial.");
+            return;
+        }
+
+        sysPromedio = Math.round(sysSum / num);
+        diaPromedio = Math.round(diaSum / num);
+
+        let diagnostico = "";
+        let clase = "result-box";
+        esEmergencia = false;
+
+        if (sysPromedio >= 180 || diaPromedio >= 120) {
+            diagnostico = "Hipertensión arterial (HTA) grado 2 con posible emergencia hipertensiva";
+            gradoHTA = "HTA2";
+            esEmergencia = true;
+            clase += " alert-box";
+        } else if (sysPromedio >= 140 || diaPromedio >= 90) {
+            diagnostico = "Hipertensión arterial (HTA) grado II";
+            gradoHTA = "HTA2";
+            clase += " alert-box";
+        } else if (sysPromedio >= 130 || diaPromedio >= 80) {
+            diagnostico = "Hipertensión arterial (HTA) grado I";
+            gradoHTA = "HTA1";
+            clase += " warning-box";
+        } else if (sysPromedio >= 120 && diaPromedio < 80) {
+            diagnostico = "Presión Arterial Elevada";
+            gradoHTA = "ELEVADA";
+        } else {
+            diagnostico = "Presión Arterial Normal";
+            gradoHTA = "NORMAL";
+        }
+
+        const box = document.getElementById('resultadoPA');
+        box.innerHTML = `Promedio Calculado: <strong>${sysPromedio}/${diaPromedio} mmHg</strong> <br><br> Resultado: <strong>${diagnostico}</strong>`;
+        box.className = clase;
+        
+        document.getElementById('seccionRCV').classList.remove('hidden');
+        document.getElementById('riesgoCV').value = "";
+        document.getElementById('seccionTratamiento').classList.add('hidden');
+        document.getElementById('resultadoMeta').classList.add('hidden');
+    }
+
+    function evaluarMetas() {
+        const rcv = document.getElementById('riesgoCV').value;
+        if (!rcv) return;
+
+        let metaSys = 140;
+        let metaDia = 90;
+
+        if (rcv === 'alto' || rcv === 'muy_alto' || rcv === 'critico') {
+            metaSys = 130;
+            metaDia = 80;
+        }
+
+        enMeta = (sysPromedio < metaSys && diaPromedio < metaDia);
+        const boxMeta = document.getElementById('resultadoMeta');
+        
+        let textoMeta = `Objetivo de Presión Arterial según RCV: <strong><${metaSys}/${metaDia} mmHg</strong><br>`;
+        
+        if (enMeta) {
+            textoMeta += `<div class="meta-text" style="color: #155724; margin-top: 10px;">✅ EL PACIENTE ESTÁ EN LA META</div>`;
+            boxMeta.className = "result-box";
+        } else {
+            textoMeta += `<div class="meta-text" style="color: #721c24; margin-top: 10px;">❌ EL PACIENTE ESTÁ FUERA DE LA META</div>`;
+            boxMeta.className = "result-box alert-box";
+        }
+
+        boxMeta.innerHTML = textoMeta;
+        boxMeta.classList.remove('hidden');
+        document.getElementById('seccionTratamiento').classList.remove('hidden');
+    }
+
+    // Motor dinámico de dosificación con textos altamente específicos
+    function getDosis(med, inv, escalon) {
+        if (med === "Irbersartan") {
+            if (escalon === 1 && inv.includes("Irbersartan 150mg")) return "Irbesartán 150 mg (1 tableta de 150mg)";
+            if (escalon === 2 && inv.includes("Irbersartan 150mg")) return "Irbesartán 300 mg (2 tabletas de 150mg)";
+        }
+        if (med === "Enalapril") {
+            if (escalon === 1 && inv.includes("Enalapril 20mg")) return "Enalapril 10 mg (media tableta de 20mg)";
+            if (escalon === 2 && inv.includes("Enalapril 20mg")) return "Enalapril 20 mg (1 tableta de 20mg)";
+        }
+        if (med === "Amlodipino") {
+            if (escalon === 1 && inv.includes("Amlodipino 5mg")) return "Amlodipino 5 mg (1 tableta de 5mg)";
+            if (escalon === 2 && inv.includes("Amlodipino 5mg")) return "Amlodipino 10 mg (2 tabletas de 5mg)";
+        }
+        if (med === "Hidroclorotiazida") {
+            if (escalon === 1) {
+                if (inv.includes("Hidroclorotiazida 25mg") && inv.includes("Hidroclorotiazida 50mg")) return "Hidroclorotiazida 12.5 mg (media tableta de 25mg)";
+                if (inv.includes("Hidroclorotiazida 50mg")) return "Hidroclorotiazida 12.5 mg (un cuarto de tableta de 50mg)";
+                if (inv.includes("Hidroclorotiazida 25mg")) return "Hidroclorotiazida 12.5 mg (media tableta de 25mg)";
+            }
+            if (escalon === 2) {
+                if (inv.includes("Hidroclorotiazida 25mg") && inv.includes("Hidroclorotiazida 50mg")) return "Hidroclorotiazida 25 mg (1 tableta de 25mg)";
+                if (inv.includes("Hidroclorotiazida 25mg")) return "Hidroclorotiazida 25 mg (1 tableta de 25mg)";
+                if (inv.includes("Hidroclorotiazida 50mg")) return "Hidroclorotiazida 25 mg (media tableta de 50mg)";
+            }
+        }
+        return null;
+    }
+
+    function calcularTratamiento() {
+        const inv = Array.from(document.querySelectorAll('#inventario input:checked')).map(cb => cb.value);
+        const pacienteConocido = document.getElementById('pacienteConocido').value;
+        const resBox = document.getElementById('resultadoTx');
+        
+        let recomendacion = "";
+
+        if (enMeta) {
+            recomendacion = "Presión en metas. Continúe con el mismo tratamiento (o estilo de vida) y cite en 1 a 3 meses.";
+        } else if (gradoHTA === "NORMAL" || gradoHTA === "ELEVADA") {
+            recomendacion = "Priorice cambios en el estilo de vida. Reevaluar periódicamente.";
+        } else {
+            let opciones = [];
+            
+            // LÓGICA PACIENTE NUEVO
+            if (pacienteConocido === 'NO') {
+                if (gradoHTA === "HTA1") {
+                    recomendacion = "<strong>Tratamiento Inicial (Paso 1 - Monoterapia a dosis inicial):</strong><br><br>";
+                    
+                    let i = getDosis("Irbersartan", inv, 1);
+                    let e = getDosis("Enalapril", inv, 1);
+                    let a = getDosis("Amlodipino", inv, 1);
+                    let h = getDosis("Hidroclorotiazida", inv, 1);
+                    
+                    if (i) opciones.push(`✅ ${i} una vez al día.`);
+                    if (e) opciones.push(`✅ ${e} una vez al día.`);
+                    if (a) opciones.push(`✅ ${a} una vez al día.`);
+                    if (h) opciones.push(`✅ ${h} una vez al día.`);
+
+                } else if (gradoHTA === "HTA2") {
+                    recomendacion = "<strong>Tratamiento Inicial (Paso 3 - Terapia Dual a dosis media):</strong><br><br>";
+                    
+                    let i = getDosis("Irbersartan", inv, 1);
+                    let e = getDosis("Enalapril", inv, 1);
+                    let a = getDosis("Amlodipino", inv, 1);
+                    let h = getDosis("Hidroclorotiazida", inv, 1);
+                    
+                    if (i && a) opciones.push(`✅ ${i} más ${a} una vez al día.`);
+                    if (i && h) opciones.push(`✅ ${i} más ${h} una vez al día.`);
+                    if (e && a) opciones.push(`✅ ${e} más ${a} una vez al día.`);
+                    if (e && h) opciones.push(`✅ ${e} más ${h} una vez al día.`);
+                }
+            } 
+            // LÓGICA PACIENTE CONOCIDO (Intensificación)
+            else {
+                recomendacion = "<strong>Paciente Ya Conocido (Intensificación):</strong><br><br>";
+                
+                let i1 = getDosis("Irbersartan", inv, 1), i2 = getDosis("Irbersartan", inv, 2);
+                let e1 = getDosis("Enalapril", inv, 1), e2 = getDosis("Enalapril", inv, 2);
+                let a1 = getDosis("Amlodipino", inv, 1), a2 = getDosis("Amlodipino", inv, 2);
+                let h1 = getDosis("Hidroclorotiazida", inv, 1), h2 = getDosis("Hidroclorotiazida", inv, 2);
+                
+                let opcionesE3 = [];
+                if (i1 && a1) opcionesE3.push(`- ${i1} más ${a1} una vez al día.`);
+                if (i1 && h1) opcionesE3.push(`- ${i1} más ${h1} una vez al día.`);
+                if (e1 && a1) opcionesE3.push(`- ${e1} más ${a1} una vez al día.`);
+                if (e1 && h1) opcionesE3.push(`- ${e1} más ${h1} una vez al día.`);
+                
+                if (opcionesE3.length > 0) {
+                    opciones.push("<strong>Escalón 3 (Dos medicamentos a dosis media):</strong><br><em>⚠️ Use este escalón si el paciente estaba con un solo medicamento a dosis tope (ej. Enalapril 20mg) y no alcanzó metas, para evitar hipotensión abrupta.</em>");
+                    opciones.push(opcionesE3.join("<br>"));
+                }
+                
+                let opcionesE4 = [];
+                if (i2 && a2) opcionesE4.push(`- ${i2} más ${a2} una vez al día.`);
+                if (i2 && h2) opcionesE4.push(`- ${i2} más ${h2} una vez al día.`);
+                if (e2 && a2) opcionesE4.push(`- ${e2} más ${a2} una vez al día.`);
+                if (e2 && h2) opcionesE4.push(`- ${e2} más ${h2} una vez al día.`);
+                
+                if (opcionesE4.length > 0) {
+                    opciones.push("<br><strong>Escalón 4 (Dos medicamentos a dosis completa):</strong><br><em>Use este escalón si el paciente ya tomaba combinación a dosis media (Escalón 3) y sigue fuera de metas.</em>");
+                    opciones.push(opcionesE4.join("<br>"));
+                }
+            }
+
+            if (opciones.length === 0) {
+                let sugerencia = "un segundo medicamento complementario (ej. Amlodipino 5 mg (1 tableta) o Hidroclorotiazida 12.5 mg (media tableta de 25mg o un cuarto de 50mg))";
+                if (inv.includes("Amlodipino 5mg") || inv.some(m => m.includes("Hidroclorotiazida"))) {
+                     sugerencia = "un IECA o ARA-II (ej. Irbesartán 150 mg (1 tableta) o Enalapril 10 mg (media tableta de 20mg))";
+                }
+                
+                recomendacion += `<div class="alert-box" style="padding:15px; margin-top:10px; border-radius:5px;">
+                    <strong>❌ Desabastecimiento</strong>, se necesita iniciar o agregar medicamento y no hay combinaciones viables en farmacia.<br><br>
+                    Cite al CAP o dé receta prescrita por ${sugerencia} una vez al día.<br><br>
+                    💡 <em>Si usted no acostumbra hacer requisición de este medicamento, recuerde usar la herramienta para calculo de requisicion.</em>
+                </div>`;
+            } else {
+                recomendacion += opciones.join("<br>");
+            }
+        }
+
+        // Incorporación del Banner de Emergencia
+        if (esEmergencia) {
+            let emergencyBanner = `<div class="alert-box" style="padding:15px; margin-bottom:20px; border-radius:5px; text-align: center; font-size: 1.1em; border-left: 5px solid #721c24;">
+                <strong>🚨 POSIBLE EMERGENCIA 🚨<br><br>REFIERA AL CENTRO DE ATENCIÓN DE MAYOR CAPACIDAD MÁS CERCANO INMEDIATAMENTE.</strong>
+            </div>`;
+            recomendacion = emergencyBanner + recomendacion;
+        }
+
+        resBox.innerHTML = recomendacion;
+        resBox.classList.remove('hidden');
+    }
+
+    toggleTomas();
+</script>
+</body>
+</html>
