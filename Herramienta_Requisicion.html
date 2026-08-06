@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo de Requisición - Primer Nivel</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #2c3e50; }
+        .disclaimer { background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; margin-bottom: 20px; font-size: 0.9em; }
+        .section-card { border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background-color: #fafafa; }
+        .section-card h2 { margin-top: 0; color: #0056b3; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
+        .btn { background-color: #28a745; color: white; padding: 15px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
+        .btn:hover { background-color: #218838; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #444; }
+        input[type="number"] { width: 100%; padding: 10px; margin-top: 5px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
+        .result-container { margin-top: 25px; }
+        .med-result { background-color: #e9f7ef; border-left: 5px solid #28a745; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .med-name { font-size: 1.2em; font-weight: bold; color: #155724; margin-bottom: 8px; }
+        .req-values { font-size: 1.1em; color: #333; }
+        .val-3m { font-weight: bold; color: #0056b3; }
+        .val-1m { font-weight: bold; color: #d39e00; }
+        
+        .explanation-box { background-color: #e2e3e5; padding: 20px; border-radius: 8px; margin-top: 30px; font-size: 0.9em; color: #383d41; }
+        .explanation-box h3 { margin-top: 0; color: #383d41; }
+        .explanation-box ul { padding-left: 20px; }
+        .explanation-box li { margin-bottom: 8px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Cálculo Automático de Requisición</h1>
+    <div class="disclaimer">
+        <strong>💡 INSTRUCCIONES:</strong> Ingrese únicamente números redondos basándose en los registros y censos de sus pacientes activos. Si no tiene pacientes en alguna categoría, deje el espacio en blanco o escriba 0.
+    </div>
+
+    <!-- SECCIÓN HTA -->
+    <div class="section-card">
+        <h2>Hipertensión Arterial (HTA)</h2>
+        
+        <label>1. Cuente cuántos hipertensos ACTIVOS tiene (los que han consultado en los últimos 3 meses):</label>
+        <input type="number" id="htaTotal" min="0" placeholder="Ej. 45">
+
+        <label>2. Cuente cuántos hipertensos GRADO II tiene (los que NO llegan a la meta con un solo medicamento y los que están tomando dos medicamentos):</label>
+        <input type="number" id="htaGrado2" min="0" placeholder="Ej. 20">
+
+        <label>3. Cuente cuántos pacientes NO se controlan con 2 medicamentos diferentes (requieren un tercero):</label>
+        <input type="number" id="htaNoControlados" min="0" placeholder="Ej. 5">
+    </div>
+
+    <!-- SECCIÓN DM2 -->
+    <div class="section-card" style="border-left: 5px solid #007bff;">
+        <h2 style="color: #007bff;">Diabetes Mellitus (DM)</h2>
+        
+        <label>4. Cuente cuántos diabéticos ACTIVOS tiene:</label>
+        <input type="number" id="dmTotal" min="0" placeholder="Ej. 30">
+
+        <label>5. Cuente cuántos diabéticos NO llegan a la meta de glucosa con la dosis MÁXIMA de Metformina (3 tabletas al día):</label>
+        <input type="number" id="dmNoControlados" min="0" placeholder="Ej. 10">
+    </div>
+
+    <!-- SECCIÓN RCV -->
+    <div class="section-card" style="border-left: 5px solid #fd7e14;">
+        <h2 style="color: #fd7e14;">Riesgo Cardiovascular (RCV)</h2>
+        
+        <label>6. Cuente cuántos pacientes tiene con Riesgo Cardiovascular ALTO (>10%, color naranja), MUY ALTO o CRÍTICO:</label>
+        <input type="number" id="rcvAlto" min="0" placeholder="Ej. 15">
+    </div>
+
+    <button class="btn" onclick="calcularRequisicion()">Calcular Requisición</button>
+
+    <!-- CONTENEDOR DE RESULTADOS -->
+    <div id="resultados" class="result-container hidden">
+        <!-- Generado por JS -->
+    </div>
+
+    <!-- EXPLICACIÓN DEL CÁLCULO -->
+    <div id="explicacion" class="explanation-box hidden">
+        <h3>¿Cómo se calculó esto? (Fórmulas utilizadas)</h3>
+        <ul>
+            <li><strong>Irbesartán o Enalapril:</strong> Número total de hipertensos × 1 tableta diaria × 90 días.</li>
+            <li><strong>Hidroclorotiazida:</strong> Número de hipertensos Grado II × (Media o Una tableta diaria) × 90 días. Se muestra un mínimo y un máximo.</li>
+            <li><strong>Amlodipino:</strong> Número de pacientes no controlados con 2 medicamentos × 1 tableta diaria × 90 días.</li>
+            <li><strong>Metformina:</strong> Número total de diabéticos × Promedio de tabletas diarias (Mínimo 1, Máximo 3) × 90 días.</li>
+            <li><strong>Glimepirida:</strong> Número de diabéticos no controlados con dosis máxima de Metformina × 1 tableta diaria × 90 días.</li>
+            <li><strong>Atorvastatina:</strong> Número de pacientes con RCV Alto, Muy Alto o Crítico × 1 tableta diaria × 90 días.</li>
+            <li><strong>Requisición para 1 mes:</strong> En todos los casos, el resultado de 3 meses dividido entre 3.</li>
+        </ul>
+    </div>
+
+</div>
+
+<script>
+    function getVal(id) {
+        let val = parseInt(document.getElementById(id).value);
+        return isNaN(val) ? 0 : val;
+    }
+
+    function formatearNumero(num) {
+        // Redondea hacia arriba para no dejar pacientes sin pastillas en caso de decimales
+        return Math.ceil(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function calcularRequisicion() {
+        // Capturar variables
+        let htaTotal = getVal('htaTotal');
+        let htaGrado2 = getVal('htaGrado2');
+        let htaNoControlados = getVal('htaNoControlados');
+        
+        let dmTotal = getVal('dmTotal');
+        let dmNoControlados = getVal('dmNoControlados');
+        
+        let rcvAlto = getVal('rcvAlto');
+
+        let htmlRes = "";
+
+        // ================= HTA =================
+        if (htaTotal > 0) {
+            let ieca3m = htaTotal * 1 * 90;
+            let ieca1m = ieca3m / 3;
+            htmlRes += `
+                <div class="med-result">
+                    <div class="med-name">💊 Irbesartán (150mg) o Enalapril (20mg)</div>
+                    <div class="req-values">
+                        Requisición para 3 meses: <span class="val-3m">${formatearNumero(ieca3m)} tabletas</span><br>
+                        Requisición para 1 mes: <span class="val-1m">${formatearNumero(ieca1m)} tabletas</span>
+                    </div>
+                </div>`;
+        }
+
+        if (htaGrado2 > 0) {
+            let hctz3mMin = htaGrado2 * 0.5 * 90;
+            let hctz3mMax = htaGrado2 * 1 * 90;
+            let hctz1mMin = hctz3mMin / 3;
+            let hctz1mMax = hctz3mMax / 3;
+            htmlRes += `
+                <div class="med-result">
+                    <div class="med-name">💊 Hidroclorotiazida</div>
+                    <div class="req-values">
+                        Requisición para 3 meses: De <span class="val-3m">${formatearNumero(hctz3mMin)}</span> a <span class="val-3m">${formatearNumero(hctz3mMax)} tabletas</span><br>
+                        Requisición para 1 mes: De <span class="val-1m">${formatearNumero(hctz1mMin)}</span> a <span class="val-1m">${formatearNumero(hctz1mMax)} tabletas</span>
+                    </div>
+                </div>`;
+        }
+
+        if (htaNoControlados > 0) {
+            let amlo3m = htaNoControlados * 1 * 90;
+            let amlo1m = amlo3m / 3;
+            htmlRes += `
+                <div class="med-result">
+                    <div class="med-name">💊 Amlodipino</div>
+                    <div class="req-values">
+                        Requisición para 3 meses: <span class="val-3m">${formatearNumero(amlo3m)} tabletas</span><br>
+                        Requisición para 1 mes: <span class="val-1m">${formatearNumero(amlo1m)} tabletas</span>
+                    </div>
+                </div>`;
+        }
+
+        // ================= DIABETES =================
+        if (dmTotal > 0) {
+            let met3mMin = dmTotal * 1 * 90;
+            let met3mMax = dmTotal * 3 * 90;
+            let met1mMin = met3mMin / 3;
+            let met1mMax = met3mMax / 3;
+            htmlRes += `
+                <div class="med-result" style="border-color: #007bff; background-color: #e9f2f9;">
+                    <div class="med-name" style="color: #0056b3;">💊 Metformina</div>
+                    <div class="req-values">
+                        Requisición para 3 meses: De <span class="val-3m">${formatearNumero(met3mMin)}</span> a <span class="val-3m">${formatearNumero(met3mMax)} tabletas</span><br>
+                        Requisición para 1 mes: De <span class="val-1m">${formatearNumero(met1mMin)}</span> a <span class="val-1m">${formatearNumero(met1mMax)} tabletas</span>
+                    </div>
+                </div>`;
+        }
+
+        if (dmNoControlados > 0) {
+            let glim3m = dmNoControlados * 1 * 90;
+            let glim1m = glim3m / 3;
+            htmlRes += `
+                <div class="med-result" style="border-color: #007bff; background-color: #e9f2f9;">
+                    <div class="med-name" style="color: #0056b3;">💊 Glimepirida</div>
+                    <div class="req-values">
+                        Requisición para 3 meses: <span class="val-3m">${formatearNumero(glim3m)} tabletas</span><br>
+                        Requisición para 1 mes: <span class="val-1m">${formatearNumero(glim1m)} tabletas</span>
+                    </div>
+                </div>`;
+        }
+
+        // ================= RCV =================
+        if (rcvAlto > 0) {
+            let ator3m = rcvAlto * 1 * 90;
+            let ator1m = ator3m / 3;
+            htmlRes += `
+                <div class="med-result" style="border-color: #fd7e14; background-color: #fff4ec;">
+                    <div class="med-name" style="color: #d35400;">💊 Atorvastatina</div>
+                    <div class="req-values">
+                        Requisición para 3 meses: <span class="val-3m">${formatearNumero(ator3m)} tabletas</span><br>
+                        Requisición para 1 mes: <span class="val-1m">${formatearNumero(ator1m)} tabletas</span>
+                    </div>
+                </div>`;
+        }
+
+        if (htmlRes === "") {
+            htmlRes = `<div class="alert-box" style="padding:15px; border-radius:5px; background-color: #f8d7da; color: #721c24; border-left: 5px solid #f5c6cb;">⚠️ No ha ingresado ningún paciente. Por favor, llene al menos un campo para realizar el cálculo.</div>`;
+        }
+
+        document.getElementById('resultados').innerHTML = htmlRes;
+        document.getElementById('resultados').classList.remove('hidden');
+        document.getElementById('explicacion').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>
