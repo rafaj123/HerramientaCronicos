@@ -474,7 +474,7 @@
             </div>`;
         }
 
-        // AGREGAR RECORDATORIO SIGSA (Siempre que se use el módulo de diagnóstico)
+        // AGREGAR RECORDATORIO SIGSA
         htmlFinal += `<div style="margin-top:15px; padding:12px; background-color:#e1f5fe; border-left:5px solid #03a9f4; border-radius:4px; color:#01579b; font-size: 14px;">
             <strong>📌 RECORDATORIO SIGSA:</strong> Registre en su hoja mensual como <b>"TAMIZAJE DE LA GLUCOSA"</b> con el CIE-10: <b>Z13.1</b>
         </div>`;
@@ -545,20 +545,24 @@
 
         let malControlado = false;
         let alertaCritica = false;
+        let hipoglucemia = false;
         let metaTexto = "";
 
-        // Metas ADA
+        // Metas ADA y Detección de Hipoglucemia
         if(tipo === 'ayunas') {
             metaTexto = "Meta: 70 a 130 mg/dl";
-            if(valor < 70 || valor > 130) malControlado = true;
+            if(valor < 70) hipoglucemia = true;
+            else if(valor > 130) malControlado = true;
             if(valor > 300) alertaCritica = true;
         } else if (tipo === 'azar') {
-            metaTexto = "Meta: Menor a 180 mg/dl";
-            if(valor >= 180) malControlado = true;
+            metaTexto = "Meta: 70 a 180 mg/dl";
+            if(valor < 70) hipoglucemia = true;
+            else if(valor >= 180) malControlado = true;
             if(valor > 300) alertaCritica = true;
         } else if (tipo === 'hba1c') {
-            metaTexto = "Meta: Menor a 7%";
-            if(valor >= 7.0) malControlado = true;
+            metaTexto = "Meta: 6.0% a 7.0%";
+            if(valor < 6.0) hipoglucemia = true;
+            else if(valor >= 7.0) malControlado = true;
             if(valor > 10.0) alertaCritica = true;
         }
 
@@ -567,9 +571,20 @@
         let contenido = document.getElementById('mensaje-clinico');
         
         box.style.display = "block";
-        box.style.borderColor = malControlado ? "#f5c6cb" : "#c3e6cb";
-        banner.className = "estado-control " + (malControlado ? "mal-controlado" : "bien-controlado");
-        banner.innerText = malControlado ? `PACIENTE MAL CONTROLADO (Fuera de meta. ${metaTexto})` : `PACIENTE BIEN CONTROLADO (En meta. ${metaTexto})`;
+        
+        if (hipoglucemia) {
+            box.style.borderColor = "#ffeeba";
+            banner.className = "estado-control discordancia";
+            banner.innerText = `⚠️ ALERTA DE HIPOGLUCEMIA (Por debajo de meta. ${metaTexto})`;
+        } else if (malControlado) {
+            box.style.borderColor = "#f5c6cb";
+            banner.className = "estado-control mal-controlado";
+            banner.innerText = `PACIENTE MAL CONTROLADO (Fuera de meta. ${metaTexto})`;
+        } else {
+            box.style.borderColor = "#c3e6cb";
+            banner.className = "estado-control bien-controlado";
+            banner.innerText = `PACIENTE BIEN CONTROLADO (En meta. ${metaTexto})`;
+        }
 
         let htmlRecos = "<ul>";
 
@@ -580,13 +595,19 @@
             htmlRecos += `<b>Referir INMEDIATAMENTE al hospital o CAP más cercano para evaluación por especialista.</b></li>`;
         }
 
-        htmlRecos += "<li><b>Consejería general:</b> Reforzar dieta sin azúcares simples, vegetales diarios, control de porciones y ejercicio 30 min/día (5 días a la semana).</li>";
-
-        if(!malControlado) {
+        if (hipoglucemia) {
+            htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #ff9800; background-color: #fff9c4; border-radius: 5px;">⚠️ RIESGO DE HIPOGLUCEMIA (Sobrecontrol):<br>
+            Los niveles están peligrosamente por debajo del límite seguro.<br>
+            <b>Indicación Médica: Retire o disminuya la dosis del último medicamento agregado al esquema.</b> Si el paciente presenta síntomas graves de hipoglucemia (sudoración fría, mareo, desmayo), trate inmediatamente con carbohidratos de absorción rápida.</li>`;
+            htmlRecos += "<li><b>Cita:</b> Agende cita a corto plazo para verificar que la glucosa se haya estabilizado sin el medicamento retirado.</li>";
+        }
+        else if (!malControlado) {
+            htmlRecos += "<li><b>Consejería general:</b> Reforzar dieta sin azúcares simples, vegetales diarios, control de porciones y ejercicio 30 min/día (5 días a la semana).</li>";
             htmlRecos += "<li><b>Indicación Médica:</b> Mantener el esquema de medicamentos actual sin cambios. Felicite al paciente.</li>";
             htmlRecos += "<li><b>Cita:</b> Recuerde agendar cita en <b>1 a 3 meses</b> para los diabéticos bien controlados.</li>";
         } 
         else {
+            htmlRecos += "<li><b>Consejería general:</b> Reforzar dieta sin azúcares simples, vegetales diarios, control de porciones y ejercicio 30 min/día (5 días a la semana).</li>";
             htmlRecos += "<li><b>Indicación Médica (Escalonamiento):</b></li>";
             
             let metMax = (met === '500x3' || met === '850x3' || met === '1000x2');
