@@ -9,6 +9,15 @@
         .app-container { background-color: #ffffff; padding: 25px; max-width: 700px; margin: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #0056b3; margin-top: 0; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
         
+        /* BARRA DE NAVEGACIÓN (Suite Médica) */
+        .nav-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; justify-content: center; background-color: #e9ecef; padding: 15px; border-radius: 8px; }
+        .nav-btn { text-decoration: none; padding: 12px 15px; border-radius: 6px; font-weight: bold; color: #fff; text-align: center; flex: 1; min-width: 140px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 14px; }
+        .nav-btn:hover { opacity: 0.85; transform: translateY(-2px); }
+        .btn-rcv { background-color: #e91e63; }
+        .btn-dm { background-color: #f44336; border: 2px solid #8e0000; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); pointer-events: none; } /* Activo */
+        .btn-hta { background-color: #0056b3; }
+        .btn-req { background-color: #ff9800; }
+
         .section-title { font-size: 1.1em; color: #0056b3; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; font-weight: bold; }
         
         .form-group { margin-bottom: 18px; }
@@ -49,6 +58,15 @@
 <body>
 
 <div class="app-container">
+
+    <!-- MENÚ DE NAVEGACIÓN -->
+    <div class="nav-bar">
+        <a href="Calculadora_RCV.html" class="nav-btn btn-rcv">🫀 Riesgo CV</a>
+        <a href="Herramienta_DM2.html" class="nav-btn btn-dm">🩸 Diabetes</a>
+        <a href="Herramienta_HTA.html" class="nav-btn btn-hta">🩺 Hipertensión</a>
+        <a href="Herramienta_Requisicion.html" class="nav-btn btn-req">📦 Requisición</a>
+    </div>
+
     <h2>Algoritmo DM2 y Prediabetes (HEARTS / ADA)</h2>
     
     <div class="disclaimer">
