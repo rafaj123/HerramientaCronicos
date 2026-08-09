@@ -402,15 +402,6 @@
         }
     }
 
-    function forzarPrediabetes() {
-        let html = generarHtmlPrediabetes();
-        html += `<div style="margin-top:15px; padding:12px; background-color:#e1f5fe; border-left:5px solid #03a9f4; border-radius:4px; color:#01579b; font-size: 14px;">
-            <strong>📌 RECORDATORIO SIGSA:</strong> Registre en su hoja mensual como <b>"TAMIZAJE DE LA GLUCOSA"</b> con el CIE-10: <b>Z13.1</b>
-        </div>`;
-        html += generarModoMedico("Discordancia resuelta manualmente por el evaluador hacia rango de Prediabetes.", "Vía Clínica MSPAS/ADA 2026.");
-        mostrarResultadoDx(html, "normal");
-    }
-
     // --- LÓGICA DE DIAGNÓSTICO ---
     function obtenerEstadoDx(tipo, valor, sintomas) {
         if (tipo === 'ayunas') {
@@ -456,10 +447,10 @@
                 } else {
                     msj = "El valor indica <b>DIABETES MELLITUS</b>. <i>Requiere confirmarse con una segunda medición en días alternos. Cite al paciente en los próximos días para repetir la prueba.</i>";
                     tipoBanner = "diagnostico-alerta";
-                    logicaMedico += " Criterio diagnóstico detectado, pendiente de segunda prueba confirmatoria en paciente asintomático.";
+                    logicaMedico += " Criterio diagnóstico detectado, pendiente de segunda prueba confirmatoria.";
                 }
             } else if (estAct === "ALTERADA_SIN_SINTOMAS") {
-                msj = "Glucosa al azar alterada (≥ 200 mg/dl), pero <b>NO se puede hacer diagnóstico de DM2 sin síntomas</b>. Debe realizar otra prueba en la siguiente consulta.";
+                msj = "Glucosa al azar alterada (≥ 200 mg/dl), pero <b>NO se puede hacer diagnóstico de DM2 sin síntomas con una sola prueba</b>. Debe realizar otra prueba en la siguiente consulta.";
                 tipoBanner = "discordancia";
                 esDiscordancia = true;
             } else if (estAct === "PRE") {
@@ -497,32 +488,31 @@
                 return;
             }
 
-            let tieneDmAnt = estadosAnt.includes("DM");
+            let tieneDmAnt = estadosAnt.includes("DM") || estadosAnt.includes("ALTERADA_SIN_SINTOMAS");
             let tienePreAnt = estadosAnt.includes("PRE");
-            let tieneAltSinSintAnt = estadosAnt.includes("ALTERADA_SIN_SINTOMAS");
             let tieneNormalAnt = estadosAnt.includes("NORMAL");
 
-            if (estAct === "DM" && tieneDmAnt) {
+            let esRangoDmAct = (estAct === "DM" || estAct === "ALTERADA_SIN_SINTOMAS");
+
+            if (esRangoDmAct && tieneDmAnt) {
                 msj = "La prueba actual y al menos una prueba anterior están en rango de Diabetes. <b>DIAGNÓSTICO CONFIRMADO.</b>";
                 esDiabetico = true;
                 tipoBanner = "diagnostico-confirmado";
-                logicaMedico += " Confirmación cruzada con prueba histórica en rangos de DM.";
+                logicaMedico += " Confirmación cruzada con dos pruebas (actual e histórica) en rangos de DM.";
             } 
-            else if (estAct === "PRE" && tienePreAnt && !tieneDmAnt) {
+            else if (estAct === "PRE" && tienePreAnt && !tieneDmAnt && !esRangoDmAct) {
                 msj = htmlPrediabetes;
+                logicaMedico += " Pruebas actual e histórica en rangos de Prediabetes.";
             }
-            else if (estAct === "NORMAL" && tieneNormalAnt && !tieneDmAnt && !tienePreAnt && !tieneAltSinSintAnt) {
+            else if (estAct === "NORMAL" && tieneNormalAnt && !tieneDmAnt && !tienePreAnt && !esRangoDmAct) {
                 msj = "Las pruebas están en rangos <b>NORMALES</b>.";
-            }
-            else if (estAct === "ALTERADA_SIN_SINTOMAS" || tieneAltSinSintAnt) {
-                msj = "Hay una prueba al azar alterada pero sin síntomas. <b>Sugerencia:</b> Realizar HbA1c o glucosa en ayunas estricto para confirmar.";
-                tipoBanner = "discordancia";
-                esDiscordancia = true;
+                logicaMedico += " Pruebas actual e histórica dentro de rangos normales.";
             }
             else {
-                msj = "<b>DISCORDANCIA ENTRE PRUEBAS.</b><br>Sugerencia: Realizar HbA1c o Prueba de Tolerancia Oral (PTOG). Cite nuevamente.";
+                msj = "<b>DISCORDANCIA ENTRE PRUEBAS.</b><br>Hay resultados mixtos (ej. una prueba en rango de diabetes y otra normal/prediabetes).<br><b>Sugerencia:</b> Realizar Hemoglobina Glucosilada (HbA1c) o Prueba de Tolerancia Oral (PTOG) para establecer el diagnóstico definitivo.";
                 tipoBanner = "discordancia";
                 esDiscordancia = true;
+                logicaMedico += " Pruebas discordantes (cruzan umbrales diagnósticos). Requiere HbA1c o PTOG.";
             }
         }
 
@@ -530,12 +520,6 @@
         
         if(esDiabetico) {
             htmlFinal += `<br><button onclick="pasarATratamiento(${valorAct}, '${tipoAct}')" style="background-color:#28a745;">El paciente ya se diagnostica como diabético. Continuar a Tratamiento</button>`;
-        } else if (esDiscordancia) {
-            htmlFinal += `
-            <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-                <button onclick="pasarATratamiento(${valorAct}, '${tipoAct}')" style="background-color:#d32f2f; font-size: 14px;">Realicé prueba nuevamente y volvió a salir alterada (Rango DM)</button>
-                <button onclick="forzarPrediabetes()" style="background-color:#ff9800; color:#fff; font-size: 14px;">Realicé prueba nuevamente y NO sale alterada (Rango Prediabetes)</button>
-            </div>`;
         }
 
         htmlFinal += `<div style="margin-top:15px; padding:12px; background-color:#e1f5fe; border-left:5px solid #03a9f4; border-radius:4px; color:#01579b; font-size: 14px;">
@@ -758,7 +742,6 @@
             logicaMedico += " Alerta Roja de Referencia generada por valores críticos o lesión a órgano blanco.";
         }
 
-        // PUNTO 8: REVOLUCIÓN EN HIPOGLUCEMIA
         if (hipoglucemia) {
             let recoBaja = "";
             if (su !== '0') {
