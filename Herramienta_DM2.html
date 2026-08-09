@@ -337,6 +337,22 @@
 </div>
 
 <script>
+    // --- TELEMETRÍA (TÚNEL DE DATOS) ---
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwa7w9o34g8pIvs1jyPY2h33XK6wfaLH0_Aas_M0BC0nmLcMRnWfVbSADkd1Fku4pML8A/exec";
+    
+    function enviarEstadistica(modulo, categoria, detalle) {
+        try {
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ modulo: modulo, categoria: categoria, detalle: detalle })
+            });
+        } catch (e) {
+            console.log("Telemetría off");
+        }
+    }
+
     // --- CONTROLES DE INTERFAZ ---
     function seleccionarRuta() {
         let ruta = document.getElementById('tieneDiagnostico').value;
@@ -434,7 +450,6 @@
         </details>`;
     }
 
-    // --- REUTILIZABLE: HTML DE PREDIABETES ---
     function generarHtmlPrediabetes() {
         return `
         El valor indica <b>PREDIABETES</b> (Glucosa alterada o intolerancia). Dé plan educacional (dieta, ejercicio) y cite a control.
@@ -467,7 +482,6 @@
         }
     }
 
-    // --- LÓGICA DE DIAGNÓSTICO ---
     function obtenerEstadoDx(tipo, valor, sintomas) {
         if (tipo === 'ayunas') {
             if (valor >= 126) return "DM";
@@ -582,6 +596,11 @@
             }
         }
 
+        // Envío de Telemetría Diagnóstico
+        if(esDiabetico) enviarEstadistica("DM2", "Diagnóstico", "Confirmado");
+        else if (esDiscordancia) enviarEstadistica("DM2", "Diagnóstico", "Discordancia");
+        else if (estAct === "PRE") enviarEstadistica("DM2", "Diagnóstico", "Prediabetes");
+
         let htmlFinal = `<div>${msj}</div>`;
         
         if(esDiabetico) {
@@ -637,7 +656,6 @@
         contenido.innerHTML = html;
     }
 
-    // --- LÓGICA DE TRATAMIENTO Y CONTROL ---
     function evaluarTratamiento() {
         let ruta = document.getElementById('tieneDiagnostico').value;
         let tipo = document.getElementById('tipoGlucosaTx').value;
@@ -654,9 +672,6 @@
         box.style.display = "block";
         let htmlRecos = "<ul>";
 
-        // ==============================================
-        // LÓGICA EXCLUSIVA PARA PACIENTE PREDIABÉTICO
-        // ==============================================
         if (ruta === 'pre') {
             let estadoPre = "";
             let metaTextoPre = "";
@@ -680,6 +695,11 @@
                 else if (valor < 6.5) estadoPre = "PRE";
                 else estadoPre = "DM";
             }
+
+            // Telemetría Pre
+            if (isHipoPre) enviarEstadistica("DM2", "Alerta Pre", "Hipoglucemia");
+            else if (estadoPre === "NORMAL") enviarEstadistica("DM2", "Tratamiento Pre", "Reversión a Normal");
+            else if (estadoPre === "DM") enviarEstadistica("DM2", "Tratamiento Pre", "Progresión a DM2");
 
             if (isHipoPre) {
                 box.style.borderColor = "#ffeeba";
@@ -750,14 +770,8 @@
             return;
         }
 
-        // ==============================================
-        // LÓGICA ESTÁNDAR PARA PACIENTE DIABÉTICO (DM2)
-        // ==============================================
-
         let su = document.getElementById('txSulfonilurea').value;
         let isglt2 = document.getElementById('txSglt2').value;
-
-        // Stocks
         let hayMet500 = document.getElementById('stockMet500').checked;
         let hayMet850 = document.getElementById('stockMet850').checked;
         let hayMet1000 = document.getElementById('stockMet1000').checked;
@@ -766,7 +780,6 @@
         let hayCana100 = document.getElementById('stockCana100').checked;
         let hayCana300 = document.getElementById('stockCana300').checked;
 
-        // Complicaciones
         let tieneComp = document.getElementById('compPie').checked || 
                         document.getElementById('compOjo').checked || 
                         document.getElementById('compRin').checked || 
@@ -794,7 +807,6 @@
             let comorb = document.getElementById('comorbHbA1c').value;
             let metaSuperior = 0;
             
-            // Asignación de Metas Individualizadas (ADA)
             if (edad === 'joven' && comorb === 'no') { 
                 metaSuperior = 6.5; 
                 metaTexto = "Meta estricta para adultos jóvenes y sanos: < 6.5%"; 
@@ -816,7 +828,7 @@
                 logicaMedico += "Asignación de meta flexible (<8.0%) para adulto mayor con comorbilidad avanzada. ";
             }
             
-            if(valor < 6.0) sobretratado = true; // El corte de "HbA1c baja" no es hipoglucemia aguda, es sobretratamiento crónico.
+            if(valor < 6.0) sobretratado = true; 
             else if(valor >= metaSuperior) malControlado = true;
             
             if(valor > 10.0) alertaCritica = true;
@@ -848,8 +860,11 @@
             logicaMedico += " Alerta Roja de Referencia generada por valores críticos o lesión a órgano blanco.";
         }
 
+        // Telemetría de Alertas Críticas
+        if(alertaCritica) enviarEstadistica("DM2", "Alerta", "Valores Críticos / Referencia");
+
         if (hipoglucemia) {
-            // Hipoglucemia Aguda (Glucosa < 70)
+            enviarEstadistica("DM2", "Alerta", "Hipoglucemia detectada");
             let recoBaja = "";
             if (su !== '0') {
                 recoBaja = `<b>SUSPENDA la Sulfonilurea</b> (Glimepirida o Gliclazida). Las sulfonilureas son la causa farmacológica principal de hipoglucemias severas. Mantenga la Metformina en su dosis actual.`;
@@ -878,7 +893,7 @@
             htmlRecos += "<li><b>Cita:</b> Agende cita a corto plazo (1 semana) para verificar estabilidad.</li>";
         }
         else if (sobretratado) {
-            // Sobrecontrol Crónico (HbA1c < 6.0%)
+            enviarEstadistica("DM2", "Alerta", "Sobretratamiento detectado");
             let recoDesescalar = "";
             if (su !== '0') {
                 recoDesescalar = `<b>Reducir la dosis de Sulfonilurea a la mitad o suspenderla.</b> (Las sulfonilureas como la Glimepirida o Gliclazida son las que más bajan el azúcar).`;
@@ -911,6 +926,7 @@
             htmlRecos += "<li><b>Cita:</b> Agende cita a corto plazo (2 a 4 semanas) para vigilar síntomas de debilidad o mareos.</li>";
         }
         else if (!malControlado) {
+            enviarEstadistica("DM2", "Control", "En metas");
             htmlRecos += "<li><b>Consejería general:</b> Reforzar dieta y ejercicio 30 min/día (5 días a la semana).</li>";
             htmlRecos += "<li><b>Indicación Médica:</b> Mantener el esquema de medicamentos actual sin cambios. Felicite al paciente.</li>";
             htmlRecos += "<li><b>Cita:</b> Recuerde agendar cita en <b>1 a 3 meses</b>.</li>";
@@ -923,6 +939,7 @@
             let suMax = (su !== '0');
             
             if (!metMax) {
+                enviarEstadistica("DM2", "Tratamiento", "Escalón 1");
                 let recMet = "";
                 if (met === '0') {
                     if(hayMet850) recMet = "Iniciar Metformina 850 mg (1 vez al día).";
@@ -944,6 +961,7 @@
                 logicaMedico += ` Intensificación de Escalón 1: Maximización progresiva de Metformina hasta dosis tope tolerada.`;
             } 
             else if (!suMax) {
+                enviarEstadistica("DM2", "Tratamiento", "Escalón 2");
                 let recSu = "";
                 if(hayGlime4) recSu = "Mantener Metformina actual a dosis máxima y <b>AGREGAR Glimepirida 4 mg O GLICLAZIDA 30MG</b> (1 vez al día).";
                 else if(hayGlicla60) recSu = "Mantener Metformina actual a dosis máxima y <b>AGREGAR Gliclazida 60 mg</b> (1 vez al día).";
@@ -954,16 +972,20 @@
             else {
                 if (isglt2 === '0') {
                     if(hayCana100) {
+                        enviarEstadistica("DM2", "Tratamiento", "Escalón 3");
                         htmlRecos += `<ul><div class="opcion-escalon"><strong>Escalón 3:</strong> Mantener tratamiento actual y AGREGAR Canagliflozina 100 mg (1 vez al día).<br><i>*Referir a médico con CREATININA para ajuste renal.</i></div></ul>`;
                         logicaMedico += ` Intensificación a Escalón 3: Adición de iSGLT2 tras fallo de terapia dual.`;
                     } else if (hayCana300) {
+                        enviarEstadistica("DM2", "Tratamiento", "Escalón 3");
                         htmlRecos += `<ul><div class="opcion-escalon"><strong>Escalón 3:</strong> Mantener tratamiento actual y AGREGAR Canagliflozina 150 mg (Media tab de 300mg al día).<br><i>*Referir a médico con CREATININA para ajuste renal.</i></div></ul>`;
                         logicaMedico += ` Intensificación a Escalón 3: Adición de iSGLT2 tras fallo de terapia dual.`;
                     } else {
+                        enviarEstadistica("DM2", "Tratamiento", "Referencia Insulina");
                         htmlRecos += `<ul><li class="alerta-roja">⚠️ EL PACIENTE HA ALCANZADO EL TOPE DE MEDICAMENTOS ORALES DISPONIBLES. Requiere iniciar insulina de acción larga (NPH). Referir al centro de mayor capacidad.</li></ul>`;
                         logicaMedico += ` Terapia dual fallida, ausencia de iSGLT2 en inventario. Referencia para insulinización.`;
                     }
                 } else {
+                    enviarEstadistica("DM2", "Tratamiento", "Referencia Insulina");
                     htmlRecos += `<ul><li class="alerta-roja">⚠️ FRACASO DE TERAPIA TRIPLE. Requiere iniciar insulina de acción larga (NPH). Referir al centro de mayor capacidad.</li></ul>`;
                     logicaMedico += ` Fracaso de terapia triple oral. Referencia obligatoria para insulinización basal.`;
                 }
