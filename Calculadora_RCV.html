@@ -3,19 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riesgo Cardiovascular (RCV) de HEARTS (Sin laboratorios de colesterol)</title>
+    <title>RCV HEARTS - Primer Nivel</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #e0e0e0; margin: 0; padding: 20px; color: #333; }
-        .app-container { background-color: #ffffff; padding: 25px; max-width: 500px; margin: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .app-container { background-color: #ffffff; padding: 25px; max-width: 550px; margin: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         /* BARRA DE NAVEGACIÓN (Suite Médica) */
         .nav-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; justify-content: center; background-color: #e9ecef; padding: 15px; border-radius: 8px; }
-        .nav-btn { text-decoration: none; padding: 12px 15px; border-radius: 6px; font-weight: bold; color: #fff; text-align: center; flex: 1; min-width: 140px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+        .nav-btn { text-decoration: none; padding: 12px 15px; border-radius: 6px; font-weight: bold; color: #fff; text-align: center; flex: 1; min-width: 140px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 14px; }
         .nav-btn:hover { opacity: 0.85; transform: translateY(-2px); }
         .btn-rcv { background-color: #e91e63; border: 2px solid #880e4f; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); pointer-events: none; } /* Activo */
         .btn-dm { background-color: #f44336; }
         .btn-hta { background-color: #0056b3; }
         .btn-req { background-color: #ff9800; }
+
+        /* PORTADA LEGAL */
+        .portada-header { text-align: center; margin-bottom: 20px; }
+        .portada-header h2 { color: #d32f2f; margin: 0 0 5px 0; font-size: 1.4em; }
+        .portada-header h4 { color: #555; margin: 0 0 15px 0; font-size: 1em; font-weight: normal; }
+        .version-box { background-color: #f8f9fa; border: 1px solid #ddd; padding: 10px; border-radius: 6px; font-size: 0.85em; font-weight: bold; color: #444; margin-bottom: 15px; display: inline-block; text-align: center; width: 100%; box-sizing: border-box;}
+        
+        .disclaimer { background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; margin-bottom: 20px; font-size: 0.85em; line-height: 1.5; border-radius: 4px; text-align: left; }
 
         .intro-text { background-color: #e8f5e9; border-left: 5px solid #4caf50; padding: 12px; font-size: 14px; margin-bottom: 20px; border-radius: 4px; line-height: 1.5; }
         .form-group { margin-bottom: 15px; }
@@ -28,15 +36,16 @@
         button:hover { background-color: #004494; }
         .btn-reset { background-color: #6c757d; margin-top: 15px; }
         .btn-reset:hover { background-color: #5a6268; }
-        #resultado-box { margin-top: 25px; padding: 20px; text-align: center; font-size: 22px; font-weight: bold; border-radius: 8px; display: none; color: black; border: 2px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        #resultado-box { margin-top: 25px; padding: 20px; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; display: none; color: black; border: 2px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .alerta-clinica { font-size: 14px; font-weight: normal; display: block; margin-top: 15px; text-align: left; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 6px; color: #333; }
         ul { margin-top: 5px; padding-left: 20px; }
         li { margin-bottom: 8px; }
-        .footer-legal { margin-top: 30px; font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 15px; text-align: justify; line-height: 1.5; }
-        .creditos { text-align: center; margin-top: 15px; font-weight: bold; color: #333; }
         
-        .btn-retorno-hta { display: block; width: 100%; box-sizing: border-box; padding: 15px; background-color: #0056b3; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; text-align: center; font-size: 16px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background-color 0.3s; }
-        .btn-retorno-hta:hover { background-color: #004494; color: white; }
+        .btn-retorno-hta { display: block; width: 100%; box-sizing: border-box; padding: 15px; background-color: #0056b3; color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; text-align: center; font-size: 15px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background-color 0.3s; }
+        .btn-retorno-hta:hover { background-color: #004494; }
+
+        .justificacion-box { font-size: 0.85em; color: #444; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ccc; text-align: left; line-height: 1.5;}
     </style>
 </head>
 <body>
@@ -51,13 +60,28 @@
         <a href="Herramienta_Requisicion.html" class="nav-btn btn-req">📦 Requisición</a>
     </div>
 
-    <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px; margin-top: 0;">Riesgo Cardiovascular (RCV) de HEARTS</h2>
-    <h4 style="text-align: center; color: #555; margin-top: 0; margin-bottom: 20px;">(Sin laboratorios de colesterol)</h4>
-
-    <div class="intro-text">
-        <strong>Destinado a personal del primer nivel de atención:</strong> Recuerde que el Riesgo Cardiovascular (RCV) es la probabilidad que el paciente tiene de sufrir un evento como infarto o derrame cerebral en los próximos 10 años, pudiendo provocarle la muerte o invalidez. Estimarlo, tratarlo y prevenirlo a tiempo puede brindar muchos años de vida útil al paciente.
+    <!-- PORTADA LEGAL (Punto 1 y Punto 20) -->
+    <div class="portada-header">
+        <h2>HERRAMIENTA NO OFICIAL DE APOYO A HEARTS</h2>
+        <h4>Para la implementación de la Vía Clínica de prevención y control de enfermedades cardiovasculares en el primer nivel de atención</h4>
     </div>
 
+    <div class="version-box">
+        VÍA CLÍNICA BASE: MSPAS/HEARTS Guatemala — versión 2026<br>
+        <span style="color: #666; font-weight: normal;">Última revisión de esta herramienta: agosto 2026</span><br>
+        <span style="color: #d32f2f; font-size: 0.9em;">⚠️ Verifique que esta versión continúe vigente antes de utilizarla.</span>
+    </div>
+
+    <div class="disclaimer">
+        Herramienta independiente de apoyo a la toma de decisiones, basada en la Vía Clínica HEARTS/Guatemala y adaptada a las condiciones operativas y disponibilidad de medicamentos del primer nivel de atención.<br><br>
+        <strong>No es un instrumento oficial del MSPAS, OPS/OMS ni de otra institución. No sustituye la normativa vigente, la valoración profesional ni los protocolos institucionales. En caso de discrepancia, prevalece siempre la normativa oficial vigente.</strong>
+    </div>
+
+    <div class="intro-text">
+        <strong>Objetivo:</strong> Estimar la probabilidad de sufrir un evento cardiovascular (infarto o derrame cerebral) en los próximos 10 años utilizando tablas sin laboratorio. Identificar y tratar este riesgo a tiempo salva vidas.
+    </div>
+
+    <!-- SECCIÓN DE CONDICIONES PREESTABLECIDAS -->
     <div class="high-risk-section">
         <div class="form-group">
             <label>⚠️ ¿Tiene historia de enfermedad cardiovascular? (Infarto al corazón, derrame cerebral, o enfermedad vascular periférica)</label>
@@ -86,6 +110,7 @@
 
     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
 
+    <!-- DATOS DEL PACIENTE -->
     <div class="form-group">
         <label>👤 Sexo</label>
         <select id="sexo" class="var-estandar">
@@ -125,18 +150,13 @@
     <button onclick="calcularRCV()">Calcular Riesgo</button>
     <button class="btn-reset" onclick="reiniciar()">Nueva Consulta</button>
 
+    <!-- RESULTADO -->
     <div id="resultado-box">
         <span id="valor-riesgo"></span><br>
         <span id="imc-calculado" style="font-size: 15px; font-weight: normal; display: block; margin-top: 8px; line-height: 1.4;"></span>
         <div class="alerta-clinica" id="mensaje-extra"></div>
     </div>
 
-    <div class="footer-legal">
-        <p><em>Nota:</em> Esta calculadora es una herramienta de apoyo al tamizaje orientada a personal del primer nivel de atención y no sustituye el juicio clínico de un profesional médico.</p>
-        <div class="creditos">
-            <span style="font-size: 11px; font-weight: normal; color: #666; display: block; margin-top: 8px;">Algoritmo clínico basado estrictamente en las Tablas de Estratificación de Riesgo Cardiovascular no basadas en laboratorio de HEARTS en las Américas / OPS.</span>
-        </div>
-    </div>
 </div>
 
     <script>
@@ -192,13 +212,16 @@
             box.style.display = "block";
             box.style.backgroundColor = colorFondo;
             
+            // Ajustar color de texto según fondo
             if (colorFondo === "#900c3f" || colorFondo === "#f44336") {
                 box.style.color = "white";
+            } else if (colorFondo === "#e2e3e5") {
+                box.style.color = "#383d41";
             } else {
                 box.style.color = "black";
             }
 
-            document.getElementById('valor-riesgo').innerText = textoRiesgo;
+            document.getElementById('valor-riesgo').innerHTML = textoRiesgo;
             document.getElementById('imc-calculado').innerHTML = imcTexto;
             
             const botonHTA = `
@@ -212,25 +235,23 @@
         }
 
         function generarRecomendacion(riesgoNumerico, esSecundaria, tieneDM, tieneERC) {
-            const consejeria = "<div style='margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;'><b>Consejería general:</b> Estilo de vida saludable, dieta baja en grasas, sal, embutidos <b>(ver pág. 29 del cuadernillo auxiliar)</b>, y ejercicio de 30 minutos 5 días a la semana <b>(ver pág. 34 del cuadernillo auxiliar)</b>.</div>";
-            const recordatorioSigsa = "<div style='margin-top: 15px; padding-top: 12px; border-top: 1px solid #ddd; font-weight: bold; color: #d32f2f; text-align: center; font-size: 15px;'>⚠️ Recuerde escribir este dato y el nivel de riesgo en la FICHA AMARILLA y/o en el EXPEDIENTE del paciente, por favor.</div>";
+            const consejeria = "<div style='margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;'><b>Consejería general:</b> Estilo de vida saludable, dieta baja en grasas, sal, embutidos <b>(ver pág. 29 del cuadernillo auxiliar)</b>, y ejercicio de 30 min, 5 días a la semana.</div>";
+            const recordatorioSigsa = "<div style='margin-top: 15px; padding-top: 12px; border-top: 1px solid #ddd; font-weight: bold; color: #d32f2f; text-align: center; font-size: 15px;'>⚠️ Escriba el nivel de riesgo en la FICHA AMARILLA y en el EXPEDIENTE.</div>";
             
             let detalles = "";
 
             if (esSecundaria) {
-                detalles = "<ul><li><b>Referencia:</b> Se recomienda que el paciente sea visto al menos una vez en el Hospital distrital o CAP más cercano para evaluación completa por especialista de preferencia.</li><li><b>Manejo:</b> Recetar <b>Atorvastatina 40mg</b> cada 24 horas <span style='color: #d32f2f;'><i>(¡Recuerde anotar en el SIGSA como \"NO ENTREGADO\" si no hay disponible, por favor!)</i></span>. Procurar que la terapia antihipertensiva mantenga la PA en valores adecuados. <b>Meta de PA: menor a 130/80 mmHg (ver pág. 46 del cuadernillo compaginado).</b><br><small><i>*Para revisar el algoritmo completo de titulación farmacológica, consulte la pág. 46.</i></small></li><li><b>ASA:</b> Aspirina 100mg cada 24 horas.</li></ul>";
+                detalles = "<ul><li><b>Referencia:</b> Evaluación al menos una vez en Hospital distrital o CAP por especialista.</li><li><b>Manejo (Estatina):</b> Atorvastatina 40mg cada 24 hrs.</li><li><b>Manejo (PA):</b> Meta menor a 130/80 mmHg.</li><li><b>ASA:</b> Aspirina 100mg cada 24 horas.</li></ul>";
             }
             else if (riesgoNumerico >= 10 || tieneDM || tieneERC) {
-                let p_ayuda = tieneDM ? "pág. 46 y 48" : "pág. 46";
-                let viñetaPie = tieneDM ? "<li><b>Evaluación de extremidades:</b> Realizar el cuidado y tamizaje de pie diabético según la <b>pág. 40 del cuadernillo auxiliar</b>.</li>" : "";
-                
-                detalles = "<ul><li><b>Referencia:</b> Se recomienda que el paciente sea visto al menos una vez en el Hospital distrital o CAP más cercano para evaluación completa por especialista de preferencia.</li><li><b>Manejo:</b> Recetar <b>Atorvastatina 20mg</b> cada 24 horas <span style='color: #d32f2f;'><i>(¡Recuerde anotar en el SIGSA como \"NO ENTREGADO\" si no hay disponible, por favor!)</i></span>. Procurar que la terapia antihipertensiva mantenga la PA en valores adecuados. <b>Meta de PA: menor a 130/80 mmHg (ver pág. 46 del cuadernillo compaginado).</b><br><small><i>*Consulte los algoritmos terapéuticos específicos en la " + p_ayuda + " del cuadernillo.</i></small></li>" + viñetaPie + "<li><b>ASA:</b> NO indicado de rutina.</li></ul>";
+                let viñetaPie = tieneDM ? "<li><b>Pie Diabético:</b> Realizar cuidado y tamizaje.</li>" : "";
+                detalles = "<ul><li><b>Referencia:</b> Evaluación al menos una vez en Hospital distrital o CAP.</li><li><b>Manejo (Estatina):</b> Atorvastatina 20mg cada 24 hrs.</li><li><b>Manejo (PA):</b> Meta menor a 130/80 mmHg.</li>" + viñetaPie + "<li><b>ASA:</b> NO indicado de rutina.</li></ul>";
             }
             else if (riesgoNumerico >= 5 && riesgoNumerico < 10) {
-                detalles = "<ul><li><b>Referencia:</b> Manejo en Puesto de Salud.</li><li><b>Manejo:</b> NO requiere Atorvastatina de rutina. Iniciar o ajustar medicamento para la presión SOLO si la PA se mantiene en 140/90 mmHg o más en varias visitas. <b>Meta de PA: menor a 140/90 mmHg (ver pág. 46 del cuadernillo compaginado).</b></li><li><b>ASA:</b> NO indicado.</li></ul>";
+                detalles = "<ul><li><b>Referencia:</b> Manejo en Puesto de Salud.</li><li><b>Manejo:</b> NO requiere Atorvastatina de rutina. Iniciar medicamento para PA SOLO si persiste ≥140/90 mmHg.</li><li><b>Manejo (PA):</b> Meta menor a 140/90 mmHg.</li></ul>";
             }
             else {
-                detalles = "<ul><li><b>Referencia:</b> Manejo en Puesto de Salud.</li><li><b>Manejo:</b> Plan educacional para continuar estilo de vida saludable. No requiere Atorvastatina de rutina. <b>Meta de PA: menor a 140/90 mmHg (ver pág. 46 del cuadernillo compaginado).</b></li><li><b>ASA:</b> NO indicado.</li></ul>";
+                detalles = "<ul><li><b>Referencia:</b> Manejo en Puesto de Salud.</li><li><b>Manejo:</b> Plan educacional. No requiere Atorvastatina de rutina.</li><li><b>Manejo (PA):</b> Meta menor a 140/90 mmHg.</li></ul>";
             }
 
             return consejeria + detalles + recordatorioSigsa;
@@ -241,12 +262,16 @@
             const erc = document.getElementById('erc').value === 'si';
             const dm = document.getElementById('dm').value === 'si';
 
-            if (eventoCv) {
-                mostrarCajaResultado("Riesgo: Crítico (≥30%)", "#900c3f", "", generarRecomendacion(30, true, dm, erc));
-                return;
-            }
-            if (erc || dm) {
-                mostrarCajaResultado("Riesgo: Alto (10% a <20%)", "#ff9800", "", generarRecomendacion(15, false, dm, erc));
+            // PUNTO 3: Corrección de Leyendas para condiciones preestablecidas
+            if (eventoCv || erc || dm) {
+                let mensaje = "<div style='font-size: 1.1em; margin-bottom: 15px;'><strong>No utilice esta tabla para calcular el riesgo:</strong> esta condición coloca al paciente en una ruta clínica diferente.</div>";
+                let rec = generarRecomendacion(eventoCv ? 30 : 15, eventoCv, dm, erc);
+                
+                let justificacion = `<div class='justificacion-box' style='border-color: rgba(255,255,255,0.3); color: #fff;'>
+                    <strong>Fuente:</strong> Vía Clínica MSPAS/Guatemala, versión 2026. Pacientes con DM, ERC o Evento CV previo no requieren tamizaje de tabla, ingresan directamente a protocolo de alto riesgo.
+                </div>`;
+
+                mostrarCajaResultado("Ruta Clínica Preestablecida", "#900c3f", "", mensaje + rec + justificacion);
                 return;
             }
 
@@ -262,6 +287,16 @@
                 return;
             }
 
+            // PUNTO 2: Límite de Validez de Edad (40-74)
+            if (edad < 40 || edad > 74) {
+                let mensaje = `<div style='background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; border-radius: 5px; text-align: left;'>
+                    <strong>Esta tabla de riesgo no está validada para esta edad. No se puede calcular el RCV mediante esta herramienta.</strong><br><br>
+                    El tamizaje estándar (hipertensión, peso, etc.) aplica, pero el porcentaje de riesgo a 10 años no puede ser extrapolado matemáticamente. Utilice el juicio clínico.
+                </div>`;
+                mostrarCajaResultado("⚠️ Edad No Validada", "#e2e3e5", "", mensaje);
+                return;
+            }
+
             const imc = peso / (talla * talla);
 
             let clasificacionNutricional = "";
@@ -270,9 +305,9 @@
             } else if (imc >= 18.5 && imc < 25) {
                 clasificacionNutricional = "Peso Normal";
             } else if (imc >= 25 && imc < 30) {
-                clasificacionNutricional = "Sobrepeso <br><span style='color: #d32f2f; font-weight: bold; font-size: 13px;'>⚠️ Requiere realizar dieta, si fuera posible referencia con nutrición (ver pág. 29 del cuadernillo auxiliar).</span>";
+                clasificacionNutricional = "Sobrepeso <br><span style='color: #d32f2f; font-weight: bold; font-size: 13px;'>⚠️ Requiere realizar dieta, si fuera posible referencia con nutrición.</span>";
             } else {
-                clasificacionNutricional = "Obesidad <br><span style='color: #d32f2f; font-weight: bold; font-size: 13px;'>⚠️ Requiere realizar dieta, si fuera posible referencia con nutrición (ver pág. 29 del cuadernillo auxiliar).</span>";
+                clasificacionNutricional = "Obesidad <br><span style='color: #d32f2f; font-weight: bold; font-size: 13px;'>⚠️ Requiere realizar dieta, si fuera posible referencia con nutrición.</span>";
             }
 
             const imcTextoCompleto = `<b>IMC Calculado:</b> ${imc.toFixed(1)} kg/m² — <b>${clasificacionNutricional}</b>`;
@@ -285,7 +320,6 @@
             else if (edad >= 60 && edad <= 64) edadCat = "60-64";
             else if (edad >= 65 && edad <= 69) edadCat = "65-69";
             else if (edad >= 70 && edad <= 74) edadCat = "70-74";
-            else { alert("Edad fuera de rango de tabla (40-74 años). El tamizaje estándar aplica a este grupo."); return; }
 
             let imcIdx = 0;
             if (imc < 20) imcIdx = 0;
@@ -315,20 +349,28 @@
                     textoDescriptivo = `Bajo (<5%)`;
                 } else if (riesgoFinal >= 5 && riesgoFinal < 10) {
                     colorFondo = "#ffeb3b"; // Amarillo
-                    textoDescriptivo = `Moderado (${riesgoFinal}%)`;
+                    textoDescriptivo = `Moderado (5% a <10%)`;
                 } else if (riesgoFinal >= 10 && riesgoFinal < 20) {
                     colorFondo = "#ff9800"; // Naranja
-                    textoDescriptivo = `Alto (${riesgoFinal}%)`;
+                    textoDescriptivo = `Alto (10% a <20%)`;
                 } else if (riesgoFinal >= 20 && riesgoFinal < 30) {
                     colorFondo = "#f44336"; // Rojo
-                    textoDescriptivo = `Muy Alto (${riesgoFinal}%)`;
+                    textoDescriptivo = `Muy Alto (20% a <30%)`;
                 } else {
                     colorFondo = "#900c3f"; // Corinto
-                    textoDescriptivo = `Crítico (${riesgoFinal}%)`;
+                    textoDescriptivo = `Crítico (≥30%)`;
                 }
 
                 const rec = generarRecomendacion(riesgoFinal, false, false, false);
-                mostrarCajaResultado(`Riesgo: ${textoDescriptivo}`, colorFondo, imcTextoCompleto, rec);
+                
+                // PUNTOS 3, 16 y 17: Explicación, Lógica y Fuentes
+                const justificacion = `<div class='justificacion-box'>
+                    <em>Este porcentaje representa el riesgo cardiovascular estimado a 10 años mediante las tablas HEARTS/OMS. No representa la probabilidad absoluta de morir ni sustituye el juicio clínico.</em><br><br>
+                    <strong>Lógica del cálculo:</strong> RCV estimado en tabla (${riesgoFinal}%) → Riesgo ${textoDescriptivo}.<br>
+                    <strong>Fuente:</strong> Tablas OMS/HEARTS sin laboratorio para Región de las Américas, 2026.
+                </div>`;
+
+                mostrarCajaResultado(`Nivel de Riesgo: ${textoDescriptivo}`, colorFondo, imcTextoCompleto, rec + justificacion);
             }
         }
 
