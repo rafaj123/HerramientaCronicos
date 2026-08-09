@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCV HEARTS - Primer Nivel</title>
+    <title>Riesgo Cardiovascular (RCV) de HEARTS (Sin laboratorios de colesterol)</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .app-container { background-color: #ffffff; padding: 25px; max-width: 550px; margin: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { font-family: Arial, sans-serif; background-color: #e0e0e0; margin: 0; padding: 20px; color: #333; }
+        .app-container { background-color: #ffffff; padding: 25px; max-width: 500px; margin: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         /* BARRA DE NAVEGACIÓN (Suite Médica) */
         .nav-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; justify-content: center; background-color: #e9ecef; padding: 15px; border-radius: 8px; }
-        .nav-btn { text-decoration: none; padding: 12px 15px; border-radius: 6px; font-weight: bold; color: #fff; text-align: center; flex: 1; min-width: 140px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 14px; }
+        .nav-btn { text-decoration: none; padding: 12px 15px; border-radius: 6px; font-weight: bold; color: #fff; text-align: center; flex: 1; min-width: 140px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
         .nav-btn:hover { opacity: 0.85; transform: translateY(-2px); }
         .btn-rcv { background-color: #e91e63; border: 2px solid #880e4f; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); pointer-events: none; } /* Activo */
         .btn-dm { background-color: #f44336; }
@@ -60,7 +60,7 @@
         <a href="Herramienta_Requisicion.html" class="nav-btn btn-req">📦 Requisición</a>
     </div>
 
-    <!-- PORTADA LEGAL (Punto 1 y Punto 20) -->
+    <!-- PORTADA LEGAL -->
     <div class="portada-header">
         <h2>HERRAMIENTA NO OFICIAL DE APOYO A HEARTS</h2>
         <h4>Para la implementación de la Vía Clínica de prevención y control de enfermedades cardiovasculares en el primer nivel de atención</h4>
@@ -78,7 +78,8 @@
     </div>
 
     <div class="intro-text">
-        <strong>Objetivo:</strong> Estimar la probabilidad de sufrir un evento cardiovascular (infarto o derrame cerebral) en los próximos 10 años utilizando tablas sin laboratorio. Identificar y tratar este riesgo a tiempo salva vidas.
+        <strong>Destinado a personal del primer nivel de atención:</strong> Recuerde que el Riesgo Cardiovascular (RCV) es la probabilidad que el paciente tiene de sufrir un evento como infarto o derrame cerebral en los próximos 10 años, pudiendo provocarle la muerte o invalidez.<br><br>
+        <strong>ESTE RESULTADO ES INDISPENSABLE PARA EL MANEJO DE LA HIPERTENSIÓN ARTERIAL. Identificar y tratar este riesgo a tiempo salva vidas.</strong>
     </div>
 
     <!-- SECCIÓN DE CONDICIONES PREESTABLECIDAS -->
@@ -152,7 +153,7 @@
 
     <!-- RESULTADO -->
     <div id="resultado-box">
-        <span id="valor-riesgo"></span><br>
+        <span id="valor-riesgo" style="font-size: 1.2em;"></span><br>
         <span id="imc-calculado" style="font-size: 15px; font-weight: normal; display: block; margin-top: 8px; line-height: 1.4;"></span>
         <div class="alerta-clinica" id="mensaje-extra"></div>
     </div>
@@ -212,8 +213,8 @@
             box.style.display = "block";
             box.style.backgroundColor = colorFondo;
             
-            // Ajustar color de texto según fondo
-            if (colorFondo === "#900c3f" || colorFondo === "#f44336") {
+            // Text color logic for readability
+            if (colorFondo === "#900c3f" || colorFondo === "#f44336" || colorFondo === "#ff9800") {
                 box.style.color = "white";
             } else if (colorFondo === "#e2e3e5") {
                 box.style.color = "#383d41";
@@ -262,16 +263,23 @@
             const erc = document.getElementById('erc').value === 'si';
             const dm = document.getElementById('dm').value === 'si';
 
-            // PUNTO 3: Corrección de Leyendas para condiciones preestablecidas
+            // PUNTO DEL AUDITOR: Conservar la clasificación de Riesgo Alto/Crítico, pero aclarar la fuente de cálculo
             if (eventoCv || erc || dm) {
-                let mensaje = "<div style='font-size: 1.1em; margin-bottom: 15px;'><strong>No utilice esta tabla para calcular el riesgo:</strong> esta condición coloca al paciente en una ruta clínica diferente.</div>";
+                let nivelRiesgo = eventoCv ? "Crítico (≥30%)" : "Alto (10% a <20%)";
+                let colorFondo = eventoCv ? "#900c3f" : "#ff9800";
+                let condicion = eventoCv ? "evento cardiovascular previo" : (dm ? "diabetes mellitus" : "enfermedad renal crónica");
+
+                let mensaje = `<div style='font-size: 1.1em; margin-bottom: 15px; border-bottom: 1px dashed rgba(255,255,255,0.4); padding-bottom: 10px;'>
+                    <strong>No utilice esta tabla para calcular un porcentaje exacto:</strong> el diagnóstico de ${condicion} coloca al paciente en una ruta clínica diferente.
+                </div>`;
+                
                 let rec = generarRecomendacion(eventoCv ? 30 : 15, eventoCv, dm, erc);
                 
                 let justificacion = `<div class='justificacion-box' style='border-color: rgba(255,255,255,0.3); color: #fff;'>
-                    <strong>Fuente:</strong> Vía Clínica MSPAS/Guatemala, versión 2026. Pacientes con DM, ERC o Evento CV previo no requieren tamizaje de tabla, ingresan directamente a protocolo de alto riesgo.
+                    <strong>Fuente:</strong> Vía Clínica MSPAS/Guatemala, versión 2026. Pacientes con DM, ERC o Evento CV previo ingresan directamente a este estrato de riesgo.
                 </div>`;
 
-                mostrarCajaResultado("Ruta Clínica Preestablecida", "#900c3f", "", mensaje + rec + justificacion);
+                mostrarCajaResultado(`Riesgo Estimado: ${nivelRiesgo}`, colorFondo, "", mensaje + rec + justificacion);
                 return;
             }
 
@@ -287,7 +295,7 @@
                 return;
             }
 
-            // PUNTO 2: Límite de Validez de Edad (40-74)
+            // Límite de Validez de Edad (40-74)
             if (edad < 40 || edad > 74) {
                 let mensaje = `<div style='background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; border-radius: 5px; text-align: left;'>
                     <strong>Esta tabla de riesgo no está validada para esta edad. No se puede calcular el RCV mediante esta herramienta.</strong><br><br>
@@ -363,8 +371,7 @@
 
                 const rec = generarRecomendacion(riesgoFinal, false, false, false);
                 
-                // PUNTOS 3, 16 y 17: Explicación, Lógica y Fuentes
-                const justificacion = `<div class='justificacion-box'>
+                const justificacion = `<div class='justificacion-box' style='color: ${colorFondo === '#ffeb3b' ? '#333' : '#fff'}; border-color: rgba(255,255,255,0.3);'>
                     <em>Este porcentaje representa el riesgo cardiovascular estimado a 10 años mediante las tablas HEARTS/OMS. No representa la probabilidad absoluta de morir ni sustituye el juicio clínico.</em><br><br>
                     <strong>Lógica del cálculo:</strong> RCV estimado en tabla (${riesgoFinal}%) → Riesgo ${textoDescriptivo}.<br>
                     <strong>Fuente:</strong> Tablas OMS/HEARTS sin laboratorio para Región de las Américas, 2026.
