@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algoritmo Clínico - Diabetes Mellitus (DM2) y Prediabetes</title>
+    <title>Algoritmo Clínico - DM2 y Prediabetes</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 20px; color: #333; }
         .app-container { background-color: #ffffff; padding: 25px; max-width: 700px; margin: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -17,6 +17,16 @@
         .btn-dm { background-color: #f44336; border: 2px solid #8e0000; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); pointer-events: none; } /* Activo */
         .btn-hta { background-color: #0056b3; }
         .btn-req { background-color: #ff9800; }
+
+        /* PORTADA LEGAL */
+        .portada-header { text-align: center; margin-bottom: 20px; }
+        .portada-header h2 { color: #d32f2f; margin: 0 0 5px 0; font-size: 1.4em; }
+        .portada-header h4 { color: #555; margin: 0 0 15px 0; font-size: 1em; font-weight: normal; }
+        .version-box { background-color: #f8f9fa; border: 1px solid #ddd; padding: 10px; border-radius: 6px; font-size: 0.85em; font-weight: bold; color: #444; margin-bottom: 15px; display: inline-block; text-align: center; width: 100%; box-sizing: border-box;}
+        .disclaimer { background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; margin-bottom: 20px; font-size: 0.85em; line-height: 1.5; border-radius: 4px; text-align: left; }
+        
+        .exclusion-box { background-color: #ffebee; color: #c62828; padding: 15px; border-left: 5px solid #d32f2f; margin-bottom: 20px; font-size: 0.9em; border-radius: 4px; }
+        .exclusion-box ul { margin: 5px 0 0 0; padding-left: 20px; }
 
         .section-title { font-size: 1.1em; color: #0056b3; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; font-weight: bold; }
         
@@ -47,12 +57,10 @@
         li { margin-bottom: 10px; line-height: 1.5; }
         .alerta-roja { color: #d32f2f; font-weight: bold; }
         
-        .disclaimer { background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; margin-bottom: 25px; font-size: 0.85em; text-align: left; line-height: 1.5; border-radius: 4px; }
-        .footer-legal { margin-top: 30px; font-size: 11px; color: #666; border-top: 1px solid #eee; padding-top: 15px; text-align: center; line-height: 1.5; }
-        
         .caja-secundaria { background-color: #f1f8e9; padding: 15px; border-radius: 8px; border: 1px dashed #7cb342; margin-top: 10px; }
-        
         .ant-input-box { background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-left: 28px; margin-bottom: 15px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+
+        .opcion-escalon { background-color: #fff; border: 1px solid #ccc; padding: 10px; margin-top: 8px; border-radius: 4px; border-left: 4px solid #0056b3; margin-bottom: 5px;}
     </style>
 </head>
 <body>
@@ -67,12 +75,34 @@
         <a href="Herramienta_Requisicion.html" class="nav-btn btn-req">📦 Requisición</a>
     </div>
 
-    <h2>Algoritmo DM2 y Prediabetes (HEARTS / ADA)</h2>
-    
+    <!-- PORTADA LEGAL -->
+    <div class="portada-header">
+        <h2>HERRAMIENTA NO OFICIAL DE APOYO A HEARTS</h2>
+        <h4>Para la implementación de la Vía Clínica de prevención y control de enfermedades crónicas en el primer nivel de atención</h4>
+    </div>
+
+    <div class="version-box">
+        VÍA CLÍNICA BASE: MSPAS/HEARTS Guatemala — versión 2026<br>
+        <span style="color: #666; font-weight: normal;">Última revisión de esta herramienta: agosto 2026</span><br>
+        <span style="color: #d32f2f; font-size: 0.9em;">⚠️ Verifique que esta versión continúe vigente antes de utilizarla.</span>
+    </div>
+
     <div class="disclaimer">
-        <strong>⚠️ DESCARGO DE RESPONSABILIDAD LEGAL Y CLÍNICA:</strong><br>
-        Esta plataforma es un <strong>simulador logístico y educativo</strong> no oficial. Su propósito es facilitar el aprendizaje de las guías de la OPS/OMS y asistir en el cálculo de inventario. <strong>En ningún caso sustituye el juicio clínico, la evaluación médica presencial, ni las normativas institucionales del MSPAS.</strong> <br><br>
-        <span style="color:#d32f2f; font-weight:bold;">Importante: Este protocolo NO aplica a mujeres embarazadas, en periodo de lactancia o en búsqueda de embarazo.</span>
+        Herramienta independiente de apoyo a la toma de decisiones, basada en la Vía Clínica HEARTS/Guatemala y adaptada a las condiciones operativas y disponibilidad de medicamentos del primer nivel de atención.<br><br>
+        <strong>No es un instrumento oficial del MSPAS, OPS/OMS ni de otra institución. No sustituye la normativa vigente, la valoración profesional ni los protocolos institucionales. En caso de discrepancia, prevalece siempre la normativa oficial vigente.</strong>
+    </div>
+
+    <!-- CAJA DE EXCLUSIÓN (Red Flags Globales) -->
+    <div class="exclusion-box">
+        <strong>🚨 ¿Cuándo NO usar esta herramienta?</strong><br>
+        Esta herramienta está diseñada para el manejo protocolizado del paciente <b>estable</b>. NO sustituye la valoración médica urgente en:
+        <ul>
+            <li>Embarazo, lactancia o búsqueda de embarazo activa.</li>
+            <li>Sospecha de emergencia metabólica (Cetoacidosis, Estado Hiperosmolar).</li>
+            <li>Hipoglucemia grave (alteración del estado de consciencia).</li>
+            <li>Enfermedad aguda grave (infección severa, sepsis).</li>
+            <li>Sospecha de lesión renal aguda.</li>
+        </ul>
     </div>
 
     <!-- PREGUNTA INICIAL -->
@@ -115,7 +145,7 @@
 
             <!-- AZAR ANT -->
             <div class="checkbox-item" style="margin-bottom: 8px;">
-                <input type="checkbox" id="chkAntAzar" onchange="toggleInputAnt('Azar')"> <b>Al azar</b> (Comió hace menos de 8 horas o no se sabe a qué hora comió)
+                <input type="checkbox" id="chkAntAzar" onchange="toggleInputAnt('Azar')"> <b>Al azar</b> (Comió hace menos de 8 horas o no sabe)
             </div>
             <div id="cajaAntAzar" class="ant-input-box" style="display:none;">
                 <input type="number" id="valAntAzar" placeholder="Valor numérico al azar" step="0.1" style="margin-bottom: 10px;">
@@ -125,12 +155,12 @@
                 </select>
             </div>
 
-            <!-- POSPRANDIAL ANT -->
+            <!-- PTOG ANT -->
             <div class="checkbox-item" style="margin-bottom: 8px;">
-                <input type="checkbox" id="chkAntPos" onchange="toggleInputAnt('Pos')"> <b>Posprandial</b> (Carga de 75 gramos exactos de carbohidratos hace 2 horas)
+                <input type="checkbox" id="chkAntPos" onchange="toggleInputAnt('Pos')"> <b>PTOG:</b> Glucosa plasmática 2 hrs después de carga oral de 75g
             </div>
             <div id="cajaAntPos" class="ant-input-box" style="display:none;">
-                <input type="number" id="valAntPos" placeholder="Valor numérico posprandial" step="0.1">
+                <input type="number" id="valAntPos" placeholder="Valor numérico PTOG (2 horas)" step="0.1">
             </div>
 
             <!-- HbA1c ANT -->
@@ -148,9 +178,9 @@
             <label>3. ¿Qué tipo de medición de glucosa está realizando AHORA?</label>
             <select id="tipoGlucosaDx" onchange="toggleSintomasActual()">
                 <option value="ayunas">Ayunas (De 8 a 14 horas de no comer)</option>
-                <option value="azar">Al azar (Comió hace menos de 8 horas o no se sabe a qué hora comió)</option>
-                <option value="posprandial">Posprandial (OJO: Requiere carga de 75 gramos exactos de carbohidratos hace 2 horas)</option>
-                <option value="hba1c">Hemoglobina Glucosilada - HbA1c (Laboratorio en sangre venosa)</option>
+                <option value="azar">Al azar (Comió hace menos de 8 horas o no sabe)</option>
+                <option value="posprandial">PTOG: Glucosa plasmática 2 hrs después de carga oral de 75g</option>
+                <option value="hba1c">Hemoglobina Glucosilada - HbA1c (Laboratorio venoso)</option>
             </select>
         </div>
 
@@ -160,7 +190,7 @@
         </div>
 
         <div class="form-group" id="cajaSintomasActual" style="display:none;">
-            <label>5. ¿El paciente presenta síntomas clásicos? (Mucha sed, mucha orina, mucha hambre, pérdida de peso sin razón)</label>
+            <label>5. ¿El paciente presenta síntomas clásicos? (Mucha sed, orina, hambre, pérdida de peso)</label>
             <select id="sintomasDx">
                 <option value="no">No presenta síntomas claros</option>
                 <option value="si">Sí presenta síntomas</option>
@@ -178,7 +208,7 @@
             <label>A. Tipo de medición de glucosa actual:</label>
             <select id="tipoGlucosaTx">
                 <option value="ayunas">Ayunas</option>
-                <option value="azar">Al azar / Posprandial</option>
+                <option value="azar">Al azar / PTOG</option>
                 <option value="hba1c">Hemoglobina Glucosilada (HbA1c)</option>
             </select>
         </div>
@@ -195,8 +225,8 @@
             <div class="checkbox-group">
                 <div class="checkbox-item"><input type="checkbox" id="compPie" class="chk-comp"> Pie diabético, úlcera o infección activa</div>
                 <div class="checkbox-item"><input type="checkbox" id="compOjo" class="chk-comp"> Retinopatía (Pérdida de visión evaluada con rejilla)</div>
-                <div class="checkbox-item"><input type="checkbox" id="compRin" class="chk-comp"> Nefropatía (Proteínas en tira reactiva de orina o creatinina alta)</div>
-                <div class="checkbox-item"><input type="checkbox" id="compNeuro" class="chk-comp"> Neuropatía (Ardor, hormigueo o pérdida de sensibilidad en manos/pies)</div>
+                <div class="checkbox-item"><input type="checkbox" id="compRin" class="chk-comp"> Nefropatía (Proteínas en tira de orina o creatinina alta)</div>
+                <div class="checkbox-item"><input type="checkbox" id="compNeuro" class="chk-comp"> Neuropatía (Ardor, hormigueo o pérdida de sensibilidad)</div>
                 <div class="checkbox-item"><input type="checkbox" id="compCardio" class="chk-comp"> Cardiopatía (Dificultad para respirar, dolor de pecho)</div>
                 <div class="checkbox-item"><input type="checkbox" id="compNinguna" onchange="limpiarComplicaciones()"> <b>Ninguna de las anteriores</b></div>
             </div>
@@ -204,6 +234,13 @@
 
         <div class="section-title">Logística y Farmacia</div>
         
+        <div style="background-color: #fff3cd; padding: 10px; border-radius: 4px; font-size: 0.9em; margin-bottom: 15px; color: #856404;">
+            <strong>🚨 PRECAUCIONES DE FARMACIA:</strong>
+            <ul style="margin: 5px 0 0 0;">
+                <li><b>Metformina:</b> ⚠️ Revisar función renal (creatinina) cuando esté disponible.</li>
+            </ul>
+        </div>
+
         <div class="form-group">
             <label>D. Medicamentos DISPONIBLES actualmente en su farmacia (Marque los que sí hay):</label>
             <div class="checkbox-group checkbox-group-2col">
@@ -263,10 +300,6 @@
         <div id="mensaje-clinico"></div>
     </div>
 
-    <div class="footer-legal">
-        <strong>Herramienta logística y educativa basada estrictamente en los algoritmos del programa HEARTS (OPS/OMS) y metas ADA.</strong><br>
-        Diseñada para la estandarización operativa del primer nivel de atención.
-    </div>
 </div>
 
 <script>
@@ -282,12 +315,10 @@
             document.getElementById('modulo-diagnostico').style.display = 'none';
             document.getElementById('modulo-tratamiento').style.display = 'block';
             
-            // Adaptar interfaz si es Prediabetes
             let els = document.getElementsByClassName('hide-on-pre');
             for(let i=0; i<els.length; i++) {
                 els[i].style.display = (ruta === 'pre') ? 'none' : '';
             }
-            
             document.getElementById('titulo-mod-tx').innerText = (ruta === 'pre') ? "Evaluación de Control - PREDIABETES" : "Evaluación de Control y Escalonamiento (DM2)";
         } else {
             document.getElementById('modulo-diagnostico').style.display = 'none';
@@ -298,11 +329,6 @@
     function toggleSintomasActual() {
         let tipo = document.getElementById('tipoGlucosaDx').value;
         document.getElementById('cajaSintomasActual').style.display = (tipo === 'azar') ? 'block' : 'none';
-    }
-
-    function toggleSintomasAnterior() {
-        let tipo = document.getElementById('tipoGlucosaDxAnt').value;
-        document.getElementById('cajaSintomasAnt').style.display = (tipo === 'azar') ? 'block' : 'none';
     }
 
     function togglePruebaAnterior() {
@@ -324,7 +350,6 @@
         }
     }
     
-    // Desmarcar "Ninguna" si selecciona alguna complicación
     let chks = document.getElementsByClassName('chk-comp');
     for(let i=0; i<chks.length; i++){
         chks[i].addEventListener('change', function(){
@@ -332,25 +357,37 @@
         });
     }
 
-    // --- REUTILIZABLE: HTML DE PREDIABETES (Módulo 1) ---
+    function generarModoMedico(accionText, fuente = "Vía Clínica MSPAS/HEARTS, versión 2026.") {
+        return `
+        <details style="margin-top: 20px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+            <summary style="cursor:pointer; font-weight:bold; color:#0056b3; outline:none;">👨‍⚕️ Ver justificación clínica (Modo Médico)</summary>
+            <div style="margin-top: 10px; font-size: 0.9em; color: #444; line-height: 1.5;">
+                <b>Lógica de Decisión:</b><br>
+                ${accionText}<br><br>
+                <b>Fuente Bibliográfica:</b> ${fuente}
+            </div>
+        </details>`;
+    }
+
+    // --- REUTILIZABLE: HTML DE PREDIABETES (Punto 9) ---
     function generarHtmlPrediabetes() {
         return `
         El valor indica <b>PREDIABETES</b> (Glucosa alterada o intolerancia). Dé plan educacional (dieta, ejercicio) y cite a control.
         <div style="background-color: #fff9c4; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #fbc02d; text-align: left;">
-            <b>Evaluación proactiva en Prediabetes:</b><br>
+            <b>Prediabetes de alto riesgo:</b> Considerar metformina según criterios de la Vía Clínica MSPAS/HEARTS.<br>
             <label style="margin-top:10px; display:block; font-weight:bold; color:#f57f17;">
-                <input type="checkbox" id="chkPreMet" onchange="verificarMetforminaPre()"> ☑️ Marque aquí si el paciente cumple con AL MENOS UNO de los siguientes criterios:
+                <input type="checkbox" id="chkPreMet" onchange="verificarMetforminaPre()"> ☑️ Marque aquí si el paciente cumple con AL MENOS UNO de los factores que aumentan el beneficio:
             </label>
             <ul style="font-size:13px; color:#333;">
-                <li>Obesidad</li>
+                <li>IMC ≥ 35 kg/m²</li>
+                <li>Edad más joven (< 60 años)</li>
+                <li>Glucosa en ayunas ≥ 110 mg/dL</li>
+                <li>HbA1c ≥ 6.0%</li>
+                <li>Antecedente de diabetes gestacional</li>
                 <li>Síndrome de Ovario Poliquístico (SOP)</li>
-                <li>Menor de 60 años</li>
-                <li>Glucosa en ayunas mayor a 110 mg/dl</li>
-                <li>Hemoglobina glucosilada (HbA1c) mayor a 6.0%</li>
-                <li>Antecedente de diabetes durante el embarazo (gestacional)</li>
             </ul>
             <div id="recoMetPre" style="display:none; color:#1b5e20; font-weight:bold; margin-top:10px; padding-top:10px; border-top: 1px solid #fbc02d;">
-                El paciente puede beneficiarse de metformina a pesar de no tener diabetes. Inicie con una tableta al día y cite en 1-3 meses, aumentando el tratamiento hasta que la glucosa alcance rangos normales.
+                Puede considerarse iniciar Metformina (ej. 500mg u 850mg al día) y citar en 1-3 meses, acompañando siempre de cambios en el estilo de vida.
             </div>
         </div>
         `;
@@ -370,6 +407,7 @@
         html += `<div style="margin-top:15px; padding:12px; background-color:#e1f5fe; border-left:5px solid #03a9f4; border-radius:4px; color:#01579b; font-size: 14px;">
             <strong>📌 RECORDATORIO SIGSA:</strong> Registre en su hoja mensual como <b>"TAMIZAJE DE LA GLUCOSA"</b> con el CIE-10: <b>Z13.1</b>
         </div>`;
+        html += generarModoMedico("Discordancia resuelta manualmente por el evaluador hacia rango de Prediabetes.", "Vía Clínica MSPAS/ADA 2026.");
         mostrarResultadoDx(html, "normal");
     }
 
@@ -393,7 +431,6 @@
 
     function evaluarDiagnostico() {
         let esPrimera = document.getElementById('primeraVezDx').value;
-        
         let tipoAct = document.getElementById('tipoGlucosaDx').value;
         let valorAct = parseFloat(document.getElementById('valorGlucosaDx').value);
         let sintAct = document.getElementById('sintomasDx').value;
@@ -405,6 +442,7 @@
         let esDiabetico = false;
         let esDiscordancia = false;
         let tipoBanner = "normal";
+        let logicaMedico = `Evaluación Actual: ${tipoAct} = ${valorAct}. Estado: ${estAct}.`;
 
         let htmlPrediabetes = generarHtmlPrediabetes();
 
@@ -414,12 +452,14 @@
                     msj = "El valor al azar (≥ 200 mg/dl) junto con síntomas clásicos <b>CONFIRMA EL DIAGNÓSTICO DE DIABETES MELLITUS</b> en la primera visita.";
                     tipoBanner = "diagnostico-confirmado";
                     esDiabetico = true;
+                    logicaMedico += " Criterio de confirmación directa cumplido (Azar + Síntomas).";
                 } else {
                     msj = "El valor indica <b>DIABETES MELLITUS</b>. <i>Requiere confirmarse con una segunda medición en días alternos. Cite al paciente en los próximos días para repetir la prueba.</i>";
                     tipoBanner = "diagnostico-alerta";
+                    logicaMedico += " Criterio diagnóstico detectado, pendiente de segunda prueba confirmatoria en paciente asintomático.";
                 }
             } else if (estAct === "ALTERADA_SIN_SINTOMAS") {
-                msj = "Glucosa al azar alterada (≥ 200 mg/dl), pero <b>NO se puede hacer diagnóstico de DM2 sin síntomas</b>. Debe realizar otra prueba en la siguiente consulta (misma prueba al azar, en ayunas o Hemoglobina Glucosilada).";
+                msj = "Glucosa al azar alterada (≥ 200 mg/dl), pero <b>NO se puede hacer diagnóstico de DM2 sin síntomas</b>. Debe realizar otra prueba en la siguiente consulta.";
                 tipoBanner = "discordancia";
                 esDiscordancia = true;
             } else if (estAct === "PRE") {
@@ -428,10 +468,8 @@
                 msj = "Glucosa en rangos <b>NORMALES</b>. Fomente estilos de vida saludables.";
             }
         } else {
-            
             let estadosAnt = [];
             
-            // Recopilar pruebas anteriores marcadas
             if(document.getElementById('chkAntAyunas').checked) {
                 let val = parseFloat(document.getElementById('valAntAyunas').value);
                 if(!val) { alert("Ingrese el valor de la prueba en ayunas anterior."); return; }
@@ -445,7 +483,7 @@
             }
             if(document.getElementById('chkAntPos').checked) {
                 let val = parseFloat(document.getElementById('valAntPos').value);
-                if(!val) { alert("Ingrese el valor de la prueba posprandial anterior."); return; }
+                if(!val) { alert("Ingrese el valor de la prueba PTOG anterior."); return; }
                 estadosAnt.push(obtenerEstadoDx('posprandial', val, 'no'));
             }
             if(document.getElementById('chkAntHb').checked) {
@@ -468,6 +506,7 @@
                 msj = "La prueba actual y al menos una prueba anterior están en rango de Diabetes. <b>DIAGNÓSTICO CONFIRMADO.</b>";
                 esDiabetico = true;
                 tipoBanner = "diagnostico-confirmado";
+                logicaMedico += " Confirmación cruzada con prueba histórica en rangos de DM.";
             } 
             else if (estAct === "PRE" && tienePreAnt && !tieneDmAnt) {
                 msj = htmlPrediabetes;
@@ -476,13 +515,12 @@
                 msj = "Las pruebas están en rangos <b>NORMALES</b>.";
             }
             else if (estAct === "ALTERADA_SIN_SINTOMAS" || tieneAltSinSintAnt) {
-                msj = "Hay una prueba al azar alterada pero sin síntomas. <b>Sugerencia:</b> Realizar Hemoglobina Glucosilada (HbA1c) o repetir glucosa en ayunas estricto para confirmar.";
+                msj = "Hay una prueba al azar alterada pero sin síntomas. <b>Sugerencia:</b> Realizar HbA1c o glucosa en ayunas estricto para confirmar.";
                 tipoBanner = "discordancia";
                 esDiscordancia = true;
             }
             else {
-                // Discordancia general
-                msj = "<b>DISCORDANCIA ENTRE PRUEBAS.</b><br>Sugerencia: Realizar Hemoglobina Glucosilada (HbA1c) o Prueba de Tolerancia Oral a la Glucosa (con exactamente 75g de carbohidratos y medir 2 horas después). Esto solo puede hacerse en laboratorio u hospital. Cite nuevamente.";
+                msj = "<b>DISCORDANCIA ENTRE PRUEBAS.</b><br>Sugerencia: Realizar HbA1c o Prueba de Tolerancia Oral (PTOG). Cite nuevamente.";
                 tipoBanner = "discordancia";
                 esDiscordancia = true;
             }
@@ -490,22 +528,21 @@
 
         let htmlFinal = `<div>${msj}</div>`;
         
-        // Agregar Botones según el caso
         if(esDiabetico) {
             htmlFinal += `<br><button onclick="pasarATratamiento(${valorAct}, '${tipoAct}')" style="background-color:#28a745;">El paciente ya se diagnostica como diabético. Continuar a Tratamiento</button>`;
         } else if (esDiscordancia) {
             htmlFinal += `
             <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-                <button onclick="pasarATratamiento(${valorAct}, '${tipoAct}')" style="background-color:#d32f2f; font-size: 14px;">Ya realicé la prueba nuevamente y volvió a salir alterada (Rango de Diabetes)</button>
-                <button onclick="forzarPrediabetes()" style="background-color:#ff9800; color:#fff; font-size: 14px;">Ya realicé la prueba nuevamente y NO sale alterada (Rango de Prediabetes)</button>
+                <button onclick="pasarATratamiento(${valorAct}, '${tipoAct}')" style="background-color:#d32f2f; font-size: 14px;">Realicé prueba nuevamente y volvió a salir alterada (Rango DM)</button>
+                <button onclick="forzarPrediabetes()" style="background-color:#ff9800; color:#fff; font-size: 14px;">Realicé prueba nuevamente y NO sale alterada (Rango Prediabetes)</button>
             </div>`;
         }
 
-        // AGREGAR RECORDATORIO SIGSA
         htmlFinal += `<div style="margin-top:15px; padding:12px; background-color:#e1f5fe; border-left:5px solid #03a9f4; border-radius:4px; color:#01579b; font-size: 14px;">
             <strong>📌 RECORDATORIO SIGSA:</strong> Registre en su hoja mensual como <b>"TAMIZAJE DE LA GLUCOSA"</b> con el CIE-10: <b>Z13.1</b>
         </div>`;
 
+        htmlFinal += generarModoMedico(logicaMedico, "Vía Clínica MSPAS/HEARTS, versión 2026. Criterios ADA.");
         mostrarResultadoDx(htmlFinal, tipoBanner);
     }
 
@@ -558,6 +595,14 @@
         
         if(!valor) { alert("Ingrese el valor numérico de la glucosa actual."); return; }
 
+        let box = document.getElementById('resultado-box');
+        let banner = document.getElementById('estado-control-banner');
+        let contenido = document.getElementById('mensaje-clinico');
+        let logicaMedico = "";
+        
+        box.style.display = "block";
+        let htmlRecos = "<ul>";
+
         // ==============================================
         // LÓGICA EXCLUSIVA PARA PACIENTE PREDIABÉTICO
         // ==============================================
@@ -585,30 +630,25 @@
                 else estadoPre = "DM";
             }
 
-            let box = document.getElementById('resultado-box');
-            let banner = document.getElementById('estado-control-banner');
-            let contenido = document.getElementById('mensaje-clinico');
-            
-            box.style.display = "block";
-            let htmlRecos = "<ul>";
-
             if (isHipoPre) {
                 box.style.borderColor = "#ffeeba";
                 banner.className = "estado-control discordancia";
                 banner.innerText = `⚠️ ALERTA DE HIPOGLUCEMIA`;
-                htmlRecos += `<li class="alerta-roja" style="padding:10px; background-color:#fff9c4; border-radius:5px;"><b>SUSPENDA la Metformina</b> inmediatamente. Si el paciente presenta síntomas graves, trate con 15-20g de carbohidratos.</li>`;
+                htmlRecos += `<li class="alerta-roja" style="padding:10px; background-color:#fff9c4; border-radius:5px;"><b>Glucosa <70 mg/dL:</b> Tratar hipoglucemia según protocolo, confirmar el resultado si es posible y buscar la causa.<br><br><b>La metformina por sí sola rara vez produce hipoglucemia. NO SUSPENDER automáticamente sin valorar el contexto clínico</b> (ayuno prolongado, enfermedad aguda grave, consumo de alcohol).</li>`;
+                logicaMedico = "Hipoglucemia en prediabetes (monoterapia). Búsqueda de causas extrínsecas sin suspensión automática.";
             } else if (estadoPre === "NORMAL") {
                 box.style.borderColor = "#c3e6cb";
                 banner.className = "estado-control bien-controlado";
                 banner.innerText = `NORMOGLUCEMIA ALCANZADA (${metaTextoPre})`;
                 
                 if (met !== '0') {
-                    htmlRecos += `<li><b>Indicación Médica:</b> El paciente ha revertido exitosamente a niveles normales de glucosa. <b>SUSPENDA la Metformina</b> (ya no cumple con los criterios de mantenerla). Felicite al paciente.</li>`;
+                    htmlRecos += `<li><b>Indicación Médica:</b> El paciente ha revertido a niveles normales de glucosa. <b>SUSPENDA la Metformina</b> si la tomaba.</li>`;
+                    logicaMedico = "Retiro de metformina tras reversión documentada a normoglucemia.";
                 } else {
                     htmlRecos += `<li><b>Indicación Médica:</b> El paciente mantiene niveles normales. Felicítelo.</li>`;
+                    logicaMedico = "Mantenimiento de medidas no farmacológicas en normoglucemia.";
                 }
-                htmlRecos += `<li><b>Consejería general:</b> Es vital que el paciente mantenga la dieta y el ejercicio para no recaer en la prediabetes.</li>`;
-                htmlRecos += `<li><b>Cita:</b> Agende control en 3 a 6 meses.</li>`;
+                htmlRecos += `<li><b>Consejería general:</b> Mantener dieta y ejercicio. Agende control en 3 a 6 meses.</li>`;
                 
             } else if (estadoPre === "PRE") {
                 box.style.borderColor = "#ffeeba";
@@ -617,23 +657,26 @@
                 
                 if (met !== '0') {
                     htmlRecos += `<li><b>Indicación Médica:</b> Continúe con la dosis actual de Metformina.</li>`;
+                    logicaMedico = "Mantenimiento de dosis de metformina en prediabetes persistente.";
                 } else {
-                    htmlRecos += `<li><b>Indicación Médica:</b> Mantenga vigilancia. <i>Considere iniciar Metformina si cumple criterios adicionales (obesidad, SOP, <60 años, etc.).</i></li>`;
+                    htmlRecos += `<li><b>Indicación Médica:</b> Mantenga vigilancia. <i>Considere iniciar Metformina si cumple criterios de alto riesgo (obesidad, edad <60, etc.).</i></li>`;
+                    logicaMedico = "Vigilancia de prediabetes sin intensificación automática.";
                 }
-                htmlRecos += `<li><b>Consejería general:</b> Refuerce el plan de dieta sin azúcares y ejercicio físico diario.</li>`;
-                htmlRecos += `<li><b>Cita:</b> Agende control en 3 meses.</li>`;
+                htmlRecos += `<li><b>Consejería general:</b> Refuerce plan de dieta y ejercicio. Cita en 3 meses.</li>`;
 
             } else if (estadoPre === "DM") {
                 box.style.borderColor = "#f5c6cb";
                 banner.className = "estado-control mal-controlado";
                 banner.innerText = `⚠️ PROGRESIÓN A DIABETES MELLITUS`;
                 
-                htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #d32f2f; background-color: #ffebee; border-radius: 5px;">Los valores del paciente han superado el umbral. <b>El paciente debe ser diagnosticado y tratado formalmente como diabético (DM2).</b> Cambie el diagnóstico en su expediente.</li>`;
+                htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #d32f2f; background-color: #ffebee; border-radius: 5px;">Los valores superaron el umbral. <b>El paciente debe ser diagnosticado y tratado formalmente como diabético (DM2).</b> Cambie el diagnóstico en su expediente.</li>`;
                 
                 if (met !== '0') {
-                    htmlRecos += `<li><b>Escalonamiento:</b> Como el paciente ya tomaba Metformina, <b>AUMENTE LA DOSIS</b> al siguiente escalón (ej. de 1 a 2 veces al día).</li>`;
+                    htmlRecos += `<li><b>Escalonamiento:</b> <b>AUMENTE LA DOSIS</b> de Metformina al siguiente escalón (ej. de 1 a 2 veces al día).</li>`;
+                    logicaMedico = "Progresión clínica a DM2 confirmada. Escalonamiento de Metformina a dosis plena.";
                 } else {
                     htmlRecos += `<li><b>Tratamiento Inicial:</b> Inicie <b>Metformina</b> (500mg u 850mg) 1 vez al día.</li>`;
+                    logicaMedico = "Progresión clínica a DM2 confirmada. Inicio de Metformina en monoterapia.";
                 }
                 htmlRecos += `<li><b>Cita:</b> Cite en 1 mes para control estricto bajo el algoritmo de Diabetes.</li>`;
             }
@@ -643,6 +686,7 @@
             </div>`;
 
             htmlRecos += "</ul>";
+            htmlRecos += generarModoMedico(logicaMedico, "Vía Clínica MSPAS/ADA 2026. Manejo de Prediabetes.");
             contenido.innerHTML = htmlRecos;
             return;
         }
@@ -691,12 +735,6 @@
             else if(valor >= 7.0) malControlado = true;
             if(valor > 10.0) alertaCritica = true;
         }
-
-        let box = document.getElementById('resultado-box');
-        let banner = document.getElementById('estado-control-banner');
-        let contenido = document.getElementById('mensaje-clinico');
-        
-        box.style.display = "block";
         
         if (hipoglucemia) {
             box.style.borderColor = "#ffeeba";
@@ -712,59 +750,56 @@
             banner.innerText = `PACIENTE BIEN CONTROLADO (En meta. ${metaTexto})`;
         }
 
-        let htmlRecos = "<ul>";
-
         if(alertaCritica || tieneComp) {
             htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #d32f2f; background-color: #ffebee; border-radius: 5px;">⚠️ ALERTA DE REFERENCIA HOSPITALARIA:<br>`;
-            if (alertaCritica) htmlRecos += `• Valores críticos de glucosa (> 300 mg/dl o HbA1c > 10%). Especialmente si hay deterioro de consciencia o dificultad para respirar.<br>`;
+            if (alertaCritica) htmlRecos += `• Valores críticos de glucosa (> 300 mg/dl o HbA1c > 10%).<br>`;
             if (tieneComp) htmlRecos += `• Presencia de complicaciones avanzadas (Neuropatía, Nefropatía, Retinopatía, Cardiopatía o Pie Diabético).<br>`;
-            htmlRecos += `<b>Referir INMEDIATAMENTE al hospital o CAP más cercano para evaluación por especialista.</b></li>`;
+            htmlRecos += `<b>Referir INMEDIATAMENTE al hospital o CAP más cercano.</b></li>`;
+            logicaMedico += " Alerta Roja de Referencia generada por valores críticos o lesión a órgano blanco.";
         }
 
+        // PUNTO 8: REVOLUCIÓN EN HIPOGLUCEMIA
         if (hipoglucemia) {
             let recoBaja = "";
-            if (isglt2 !== '0') {
-                recoBaja = `<b>SUSPENDA el iSGLT2</b> (Canagliflozina). Mantenga el resto del esquema tal como estaba.`;
-            } else if (su !== '0') {
-                recoBaja = `<b>SUSPENDA la Sulfonilurea</b> (Glimepirida o Gliclazida). Las sulfonilureas son la causa principal de hipoglucemias. Mantenga la Metformina en la misma dosis.`;
+            if (su !== '0') {
+                recoBaja = `<b>SUSPENDA la Sulfonilurea</b> (Glimepirida o Gliclazida). Las sulfonilureas son la causa farmacológica principal de hipoglucemias severas. Mantenga la Metformina en su dosis actual.`;
+                logicaMedico = "Hipoglucemia inducida por Sulfonilurea. Suspensión de secretagogo.";
+            } else if (isglt2 !== '0') {
+                recoBaja = `<b>SUSPENDA el iSGLT2</b> (Canagliflozina) temporalmente y evalúe otras causas concurrentes.`;
+                logicaMedico = "Hipoglucemia detectada. Suspensión de iSGLT2.";
             } else if (met !== '0') {
-                if (met === '500x3' || met === '850x3' || met === '1000x2') {
-                    recoBaja = `<b>REDUZCA la Metformina</b> a 2 veces al día.`;
-                } else if (met === '500x2' || met === '850x2') {
-                    recoBaja = `<b>REDUZCA la Metformina</b> a 1 vez al día.`;
-                } else {
-                    recoBaja = `<b>SUSPENDA la Metformina</b> temporalmente.`;
-                }
+                recoBaja = `<b>Tratar hipoglucemia según protocolo, confirmar el resultado si es posible y buscar la causa.</b><br><br>
+                <span style="color:#d32f2f;"><b>La metformina por sí sola rara vez produce hipoglucemia. NO SUSPENDER automáticamente sin valorar el contexto clínico.</b></span><br>
+                Evalúe si existe: ayuno prolongado severo, enfermedad aguda grave, insuficiencia renal avanzada o consumo de alcohol.`;
+                logicaMedico = "Hipoglucemia en monoterapia con Metformina. Búsqueda de causas secundarias sin suspensión inmediata, dado el bajo riesgo intrínseco del fármaco.";
             } else {
-                recoBaja = `El paciente no reporta tomar medicamentos orales actualmente. Evalúe causas de la hipoglucemia como ayuno prolongado, desnutrición severa o enfermedad sistémica.`;
+                recoBaja = `El paciente no reporta tomar medicamentos orales. Evalúe causas subyacentes como ayuno prolongado, desnutrición severa o enfermedad sistémica grave.`;
+                logicaMedico = "Hipoglucemia espontánea/no farmacológica. Evaluación exhaustiva requerida.";
             }
 
             htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #ff9800; background-color: #fff9c4; border-radius: 5px;">
-            ⚠️ <strong>RIESGO DE HIPOGLUCEMIA (Sobrecontrol):</strong><br>
-            Los niveles de glucosa están peligrosamente bajos.<br><br>
+            ⚠️ <strong>RIESGO DE HIPOGLUCEMIA:</strong><br><br>
             <strong>1. TRATAMIENTO DE EMERGENCIA (Regla de los 15):</strong><br>
-            • <strong>Si el paciente está CONSCIENTE y tolera la vía oral:</strong> Dar 15 a 20 gramos de carbohidratos de absorción rápida (Ej: media lata de gaseosa normal NO dietética, 1 cucharada sopera colmada de azúcar disuelta en agua, o 3 dulces/caramelos). Controlar nuevamente la glucosa en 15 minutos.<br>
-            • <strong>Si el paciente está INCONSCIENTE o NO tolera la vía oral:</strong> Administrar 200cc de Dextrosa al 10% IV y controlar nuevamente en 15 minutos. <br>
-            • <em>Si los síntomas continúan o empeoran, referir inmediatamente a la unidad de mayor capacidad más cercana (CAP u Hospital).</em><br><br>
-            <strong>2. AJUSTE DE MEDICACIÓN (Desescalonamiento):</strong><br>
+            • <strong>Si está CONSCIENTE:</strong> Dar 15 a 20 gramos de carbohidratos rápidos (Ej: media lata de gaseosa normal, 1 cucharada de azúcar disuelta). Controlar en 15 minutos.<br>
+            • <strong>Si está INCONSCIENTE:</strong> Administrar 200cc de Dextrosa al 10% IV y controlar en 15 minutos. Referir si no responde.<br><br>
+            <strong>2. MANEJO DE MEDICAMENTOS:</strong><br>
             ${recoBaja}</li>`;
             
-            htmlRecos += "<li><b>Cita:</b> Agende cita a corto plazo (1 a 2 semanas) para verificar que la glucosa se haya estabilizado sin el medicamento que fue retirado/disminuido.</li>";
+            htmlRecos += "<li><b>Cita:</b> Agende cita a corto plazo (1 semana) para verificar estabilidad.</li>";
         }
         else if (!malControlado) {
-            htmlRecos += "<li><b>Consejería general:</b> Reforzar dieta sin azúcares simples, vegetales diarios, control de porciones y ejercicio 30 min/día (5 días a la semana).</li>";
+            htmlRecos += "<li><b>Consejería general:</b> Reforzar dieta y ejercicio 30 min/día (5 días a la semana).</li>";
             htmlRecos += "<li><b>Indicación Médica:</b> Mantener el esquema de medicamentos actual sin cambios. Felicite al paciente.</li>";
-            htmlRecos += "<li><b>Cita:</b> Recuerde agendar cita en <b>1 a 3 meses</b> para los diabéticos bien controlados.</li>";
+            htmlRecos += "<li><b>Cita:</b> Recuerde agendar cita en <b>1 a 3 meses</b>.</li>";
+            logicaMedico += " Paciente en control. Mantenimiento de esquema terapéutico sin modificaciones.";
         } 
         else {
-            htmlRecos += "<li><b>Consejería general:</b> Reforzar dieta sin azúcares simples, vegetales diarios, control de porciones y ejercicio 30 min/día (5 días a la semana).</li>";
-            htmlRecos += "<li><b>Indicación Médica (Escalonamiento):</b></li>";
+            htmlRecos += "<li><b>Consejería general:</b> Reforzar fuertemente dieta sin azúcares simples y ejercicio diario.</li>";
             
             let metMax = (met === '500x3' || met === '850x3' || met === '1000x2');
             let suMax = (su !== '0');
             
             if (!metMax) {
-                // ESCALÓN 1: Subir Metformina
                 let recMet = "";
                 if (met === '0') {
                     if(hayMet850) recMet = "Iniciar Metformina 850 mg (1 vez al día).";
@@ -782,47 +817,39 @@
                 else if (met.includes('1000')) {
                     if (met === '1000x1') recMet = "Aumentar a Metformina 1000 mg (2 veces al día).";
                 }
-                htmlRecos += `<ul><li><b>Paso 1:</b> ${recMet}</li></ul>`;
+                htmlRecos += `<ul><div class="opcion-escalon"><strong>Escalón 1:</strong> ${recMet}</div></ul>`;
+                logicaMedico += ` Intensificación de Escalón 1: Maximización progresiva de Metformina hasta dosis tope tolerada.`;
             } 
             else if (!suMax) {
-                // ESCALÓN 2: Agregar Sulfonilurea
                 let recSu = "";
-                if(hayGlime4) recSu = "Mantener Metformina actual y <b>AGREGAR Glimepirida 4 mg O GLICLAZIDA 30MG</b> (1 vez al día).";
-                else if(hayGlicla60) recSu = "Mantener Metformina actual y <b>AGREGAR Gliclazida 60 mg</b> (1 vez al día).";
-                else recSu = "<span class='alerta-roja'>La Metformina ya está a dosis tope y NO hay sulfonilureas (Glimepirida/Gliclazida) en farmacia para agregar. Entregue receta o refiera.</span>";
-                htmlRecos += `<ul><li><b>Paso 2:</b> ${recSu}</li></ul>`;
+                if(hayGlime4) recSu = "Mantener Metformina actual a dosis máxima y <b>AGREGAR Glimepirida 4 mg O GLICLAZIDA 30MG</b> (1 vez al día).";
+                else if(hayGlicla60) recSu = "Mantener Metformina actual a dosis máxima y <b>AGREGAR Gliclazida 60 mg</b> (1 vez al día).";
+                else recSu = "<span class='alerta-roja'>Metformina a dosis tope y NO hay sulfonilureas (Glimepirida/Gliclazida) en farmacia para agregar. Entregue receta o refiera.</span>";
+                htmlRecos += `<ul><div class="opcion-escalon"><strong>Escalón 2:</strong> ${recSu}</div></ul>`;
+                logicaMedico += ` Intensificación a Escalón 2: Adición de Sulfonilurea tras fallo de monoterapia con Metformina a dosis tope.`;
             }
             else {
-                // ESCALÓN 3: Agregar Cana o INSULINA
                 if (isglt2 === '0') {
                     if(hayCana100) {
-                        htmlRecos += `<ul><li><b>Paso 3:</b> Mantener tratamiento actual y AGREGAR Canagliflozina 100 mg (1 vez al día).<br><i>*Referir a médico junto con examen de CREATININA ya que este medicamento debe ajustarse según la función renal.</i></li></ul>`;
+                        htmlRecos += `<ul><div class="opcion-escalon"><strong>Escalón 3:</strong> Mantener tratamiento actual y AGREGAR Canagliflozina 100 mg (1 vez al día).<br><i>*Referir a médico con CREATININA para ajuste renal.</i></div></ul>`;
+                        logicaMedico += ` Intensificación a Escalón 3: Adición de iSGLT2 tras fallo de terapia dual.`;
                     } else if (hayCana300) {
-                        htmlRecos += `<ul><li><b>Paso 3:</b> Mantener tratamiento actual y AGREGAR Canagliflozina 150 mg (Media tableta de 300mg al día).<br><i>*Referir a médico junto con examen de CREATININA ya que este medicamento debe ajustarse según la función renal.</i></li></ul>`;
+                        htmlRecos += `<ul><div class="opcion-escalon"><strong>Escalón 3:</strong> Mantener tratamiento actual y AGREGAR Canagliflozina 150 mg (Media tab de 300mg al día).<br><i>*Referir a médico con CREATININA para ajuste renal.</i></div></ul>`;
+                        logicaMedico += ` Intensificación a Escalón 3: Adición de iSGLT2 tras fallo de terapia dual.`;
                     } else {
-                        htmlRecos += `<ul><li class="alerta-roja">⚠️ EL PACIENTE HA ALCANZADO EL TOPE DE MEDICAMENTOS ORALES DISPONIBLES. El paciente debe iniciar a recibir insulina de acción larga (NPH). Por favor referir al centro de mayor capacidad o calcular la dosis necesaria si se encuentra en el CAP y tiene disponible.</li></ul>`;
+                        htmlRecos += `<ul><li class="alerta-roja">⚠️ EL PACIENTE HA ALCANZADO EL TOPE DE MEDICAMENTOS ORALES DISPONIBLES. Requiere iniciar insulina de acción larga (NPH). Referir al centro de mayor capacidad.</li></ul>`;
+                        logicaMedico += ` Terapia dual fallida, ausencia de iSGLT2 en inventario. Referencia para insulinización.`;
                     }
                 } else {
-                    htmlRecos += `<ul><li class="alerta-roja">⚠️ FRACASO DE TERAPIA TRIPLE. El paciente debe iniciar a recibir insulina de acción larga (NPH). Por favor referir al centro de mayor capacidad o calcular la dosis necesaria si se encuentra en el CAP y tiene disponible.</li></ul>`;
+                    htmlRecos += `<ul><li class="alerta-roja">⚠️ FRACASO DE TERAPIA TRIPLE. Requiere iniciar insulina de acción larga (NPH). Referir al centro de mayor capacidad.</li></ul>`;
+                    logicaMedico += ` Fracaso de terapia triple oral. Referencia obligatoria para insulinización basal.`;
                 }
             }
             htmlRecos += "<li><b>Cita:</b> Recuerde agendar cita a <b>1 mes</b> en pacientes mal controlados.</li>";
         }
 
-        htmlRecos += "<li><b>Pasos Administrativos:</b> Referir al CAP u Hospital más cercano para completar tratamiento o dar receta, y <b>recuerde usar la herramienta de requisición de medicamentos</b>.</li>";
-
-        // Examen de Pie Diabético
-        htmlRecos += `<li><b>Evaluación de extremidades (Pie Diabético):</b> Utilice el monofilamento o la punta del martillo de reflejos para evaluar la sensibilidad en el pie. 
-        <br><i>Toque los puntos señalados en los esquemas con el filamento y el paciente con los ojos cerrados; si el paciente no siente al menos UNO de los toques, es un pie de riesgo.</i>
-        <div style="text-align:center; margin-top: 15px; margin-bottom: 15px;">
-            <img src="Captura de pantalla 2026-08-06 191753.png" alt="Puntos de evaluación del pie" style="max-width: 45%; border-radius: 5px; margin-right: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-            <img src="Captura de pantalla 2026-08-06 191803.jpg" alt="Uso de monofilamento" style="max-width: 45%; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-        </div>
-        Aconseje cuidados del pie diabético (lavado diario, secado cuidadoso, lubricación, corte recto de uñas, no caminar descalzo) y busque úlceras o callos. 
-        <br>Palpar el pulso pedio y tibial posterior (detrás de la rodilla y sobre el tobillo) para buscar signos de enfermedad arterial o trombosis venosa profunda (que requieren referencia con especialista).</li>`;
-        
         htmlRecos += "</ul>";
-        
+        htmlRecos += generarModoMedico(logicaMedico, "Vía Clínica MSPAS/HEARTS, versión 2026. Algoritmo DM2.");
         contenido.innerHTML = htmlRecos;
     }
 </script>
