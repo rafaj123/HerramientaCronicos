@@ -26,6 +26,7 @@
         .disclaimer { background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; margin-bottom: 20px; font-size: 0.85em; line-height: 1.5; border-radius: 4px; text-align: left; }
         
         .exclusion-box { background-color: #e8eaed; color: #383d41; padding: 15px; border-left: 5px solid #6c757d; margin-bottom: 20px; font-size: 0.9em; border-radius: 4px; }
+        .exclusion-box ul { margin: 5px 0 0 0; padding-left: 20px; }
         
         .section-card { border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background-color: #fafafa; }
         .section-card h2 { text-align: left; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-top: 0;}
@@ -47,6 +48,7 @@
         .med-name { font-size: 1.2em; font-weight: bold; color: #155724; margin-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px;}
         .req-values { font-size: 1em; color: #333; line-height: 1.6; }
         .val-3m { font-weight: bold; color: #d32f2f; font-size: 1.1em; background: #fff; padding: 2px 6px; border-radius: 4px; border: 1px solid #d32f2f;}
+        .val-1m { font-weight: bold; color: #b08d00; background: #fff8e1; padding: 2px 6px; border-radius: 4px; border: 1px solid #ffeeba;}
         .val-suficiente { font-weight: bold; color: #155724; background: #d4edda; padding: 2px 6px; border-radius: 4px; border: 1px solid #c3e6cb;}
         
         .explanation-box { background-color: #e2e3e5; padding: 20px; border-radius: 8px; margin-top: 30px; font-size: 0.9em; color: #383d41; }
@@ -171,7 +173,7 @@
         </div>
     </div>
 
-    <button class="btn" onclick="calcularRequisicion()">Calcular Pedido Real a Farmacia Central</button>
+    <button class="btn" onclick="calcularRequisicion()">Calcular Pedido a Farmacia Central</button>
 
     <!-- CONTENEDOR DE RESULTADOS -->
     <div id="resultados" class="result-container hidden">
@@ -183,6 +185,7 @@
         <h3>Lógica Logística (Cómo auditar este resultado)</h3>
         <ul>
             <li><b>Fórmula Base:</b> (Pacientes × Dosis Promedio Diaria × 90 días) - Existencia Actual en Farmacia = Cantidad a Solicitar para el Trimestre.</li>
+            <li><b>Pedidos Mensuales:</b> Si usted hace pedidos cada mes, la herramienta divide el déficit trimestral entre 3 para distribuir equitativamente el abastecimiento.</li>
             <li><b>Redondeo:</b> Los números fraccionarios siempre se redondean hacia arriba para evitar desabastecimiento.</li>
             <li><b>Metformina:</b> Se asume un promedio estadístico de 2 tabletas diarias por paciente diabético para cubrir combinaciones de dosis bajas y máximas.</li>
             <li><b>HCTZ:</b> Arroja un rango mínimo (media tableta diaria) y máximo (1 tableta diaria) dependiendo de cómo titule en su área.</li>
@@ -202,35 +205,54 @@
     }
 
     function generarFila(nombre, necesidad, stock, isRango = false, necesidadMax = 0) {
+        // reqBaseMin es lo que nos falta para cubrir 3 meses
         let reqBaseMin = Math.max(0, necesidad - stock);
-        let textoPedido = "";
+        let reqMensualMin = Math.ceil(reqBaseMin / 3);
+        let necMensualMin = Math.ceil(necesidad / 3);
+        
+        let textoPedidoTrimestral = "";
+        let textoPedidoMensual = "";
+        let necesidadTexto = "";
         
         if (isRango) {
             let reqBaseMax = Math.max(0, necesidadMax - stock);
+            let reqMensualMax = Math.ceil(reqBaseMax / 3);
+            let necMensualMax = Math.ceil(necesidadMax / 3);
+
             if (reqBaseMax === 0) {
-                textoPedido = `<span class="val-suficiente">✅ Stock suficiente (Solicitar 0)</span>`;
+                textoPedidoTrimestral = `<span class="val-suficiente">✅ Stock suficiente (0)</span>`;
+                textoPedidoMensual = `<span class="val-suficiente">0</span>`;
             } else if (reqBaseMin === 0) {
-                textoPedido = `De <span class="val-suficiente">0</span> a <span class="val-3m">Pedir ${formatear(reqBaseMax)}</span>`;
+                textoPedidoTrimestral = `De <span class="val-suficiente">0</span> a <span class="val-3m">Pedir ${formatear(reqBaseMax)}</span>`;
+                textoPedidoMensual = `De <span class="val-suficiente">0</span> a <span class="val-1m">Pedir ${formatear(reqMensualMax)}</span>`;
             } else {
-                textoPedido = `De <span class="val-3m">Pedir ${formatear(reqBaseMin)}</span> a <span class="val-3m">Pedir ${formatear(reqBaseMax)}</span>`;
+                textoPedidoTrimestral = `De <span class="val-3m">Pedir ${formatear(reqBaseMin)}</span> a <span class="val-3m">Pedir ${formatear(reqBaseMax)}</span>`;
+                textoPedidoMensual = `De <span class="val-1m">Pedir ${formatear(reqMensualMin)}</span> a <span class="val-1m">Pedir ${formatear(reqMensualMax)}</span>`;
             }
+            
+            necesidadTexto = `<b>De ${formatear(necMensualMin)} a ${formatear(necMensualMax)}</b> tabs/mes (Total 3 meses: ${formatear(necesidad)} a ${formatear(necesidadMax)})`;
         } else {
             if (reqBaseMin === 0) {
-                textoPedido = `<span class="val-suficiente">✅ Stock suficiente (Solicitar 0)</span>`;
+                textoPedidoTrimestral = `<span class="val-suficiente">✅ Stock suficiente (0)</span>`;
+                textoPedidoMensual = `<span class="val-suficiente">0</span>`;
             } else {
-                textoPedido = `<span class="val-3m">Pedir ${formatear(reqBaseMin)} tabletas</span>`;
+                textoPedidoTrimestral = `<span class="val-3m">Pedir ${formatear(reqBaseMin)} tabletas</span>`;
+                textoPedidoMensual = `<span class="val-1m">Pedir ${formatear(reqMensualMin)} tabletas</span>`;
             }
+            
+            necesidadTexto = `<b>${formatear(necMensualMin)}</b> tabs/mes (Total 3 meses: ${formatear(necesidad)})`;
         }
-
-        let necesidadTexto = isRango ? `De ${formatear(necesidad)} a ${formatear(necesidadMax)}` : formatear(necesidad);
 
         return `
             <div class="med-result">
                 <div class="med-name">${nombre}</div>
                 <div class="req-values">
-                    Necesidad Teórica (3 meses): ${necesidadTexto} tabs<br>
-                    Menos Existencia Actual: -${formatear(stock)} tabs<br>
-                    <strong>CANTIDAD A SOLICITAR: ${textoPedido}</strong>
+                    Necesidad Teórica: ${necesidadTexto}<br>
+                    Menos Existencia Actual: <b>-${formatear(stock)}</b> tabs<br>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
+                        <strong>📦 PEDIDO TRIMESTRAL (3 meses): ${textoPedidoTrimestral}</strong><br>
+                        <span style="font-size: 0.9em; color: #666; display: inline-block; margin-top: 5px;">Si hace pedidos mensuales (1 mes): ${textoPedidoMensual}</span>
+                    </div>
                 </div>
             </div>`;
     }
@@ -298,7 +320,7 @@
             htmlRes += generarFila("<span style='color:#d35400;'>💊 Atorvastatina</span>", ator3m, sAtor);
         }
 
-        document.getElementById('resultados').innerHTML = `<h3 style="color:#28a745; margin-top:0; border-bottom:2px solid #28a745; padding-bottom:10px;">📋 Pedido Trimestral Sugerido</h3>` + htmlRes;
+        document.getElementById('resultados').innerHTML = `<h3 style="color:#28a745; margin-top:0; border-bottom:2px solid #28a745; padding-bottom:10px;">📋 Pedido Sugerido</h3>` + htmlRes;
         document.getElementById('resultados').classList.remove('hidden');
         document.getElementById('explicacion').classList.remove('hidden');
     }
