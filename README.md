@@ -15,7 +15,7 @@ Esta herramienta fue desarrollada de manera independiente para reducir la carga 
 * **Qué NO HACE:** No diagnostica patologías agudas, no sustituye la valoración médica presencial, y no está diseñada para el manejo de pacientes inestables, hospitalizados o en salas de emergencia.
 
 ## Población Objetivo
-* **Usuarios primarios:** Médicos en ejercicio (EPS), personal de enfermería y auxiliares de salud del primer nivel de atención.
+* **Usuarios primarios:** Médicos en ejercicio (EPS), Médicos generales y personal de enfermería y auxiliares de salud del primer y segundo nivel de atención.
 * **Beneficiarios:** Pacientes adultos con riesgo cardiovascular, hipertensión arterial y diabetes mellitus tipo 2.
 
 ## Fuentes Clínicas y Normativas
