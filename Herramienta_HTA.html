@@ -39,7 +39,7 @@
         .checkbox-item { display: flex; align-items: center; background: #eee; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 14px;}
         .checkbox-item input { margin-right: 8px; transform: scale(1.2); }
         .hidden { display: none; }
-        .result-box { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border-left: 5px solid #c3e6cb; margin-top: 20px; font-size: 1.1em; }
+        .result-box { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border-left: 5px solid #c3e6cb; margin-top: 20px; font-size: 1.1em; line-height: 1.5; }
         .alert-box { background-color: #f8d7da; color: #721c24; border-left: 5px solid #f5c6cb; }
         .warning-box { background-color: #fff3cd; color: #856404; border-left: 5px solid #ffeeba; }
         .hipo-box { background-color: #fff9c4; color: #e65100; border-left: 5px solid #ff9800; }
@@ -51,6 +51,8 @@
         .etiqueta-medicion { padding: 8px 12px; border-radius: 4px; font-weight: bold; font-size: 0.9em; margin-bottom: 15px; display: inline-block; width: 100%; box-sizing: border-box;}
         .etq-orientativa { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .etq-completa { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        
+        .opcion-escalon { background-color: #fff; border: 1px solid #ccc; padding: 10px; margin-top: 8px; border-radius: 4px; border-left: 4px solid #0056b3; }
     </style>
 </head>
 <body>
@@ -201,9 +203,9 @@
                     <label class="checkbox-item"><input type="checkbox" class="medActual" value="Irbersartan 300mg"> Irbesartán 300 mg</label>
                     <label class="checkbox-item"><input type="checkbox" class="medActual" value="Amlodipino 5mg"> Amlodipino 5 mg</label>
                     <label class="checkbox-item"><input type="checkbox" class="medActual" value="Amlodipino 10mg"> Amlodipino 10 mg</label>
-                    <label class="checkbox-item"><input type="checkbox" class="medActual" value="HCTZ 12.5mg"> HCTZ 12.5 mg</label>
-                    <label class="checkbox-item"><input type="checkbox" class="medActual" value="HCTZ 25mg"> HCTZ 25 mg</label>
-                    <label class="checkbox-item"><input type="checkbox" class="medActual" value="HCTZ 50mg"> HCTZ 50 mg</label>
+                    <label class="checkbox-item"><input type="checkbox" class="medActual" value="HCTZ 12.5mg"> Hidroclorotiazida 12.5 mg</label>
+                    <label class="checkbox-item"><input type="checkbox" class="medActual" value="HCTZ 25mg"> Hidroclorotiazida 25 mg</label>
+                    <label class="checkbox-item"><input type="checkbox" class="medActual" value="HCTZ 50mg"> Hidroclorotiazida 50 mg</label>
                 </div>
             </div>
 
@@ -421,12 +423,12 @@
         }
         if (med === "Hidroclorotiazida") {
             if (escalon === 1) {
-                if (inv.includes("Hidroclorotiazida 25mg")) return "HCTZ 12.5 mg (media tab de 25mg)";
-                if (inv.includes("Hidroclorotiazida 50mg")) return "HCTZ 12.5 mg (un cuarto de tab de 50mg)";
+                if (inv.includes("Hidroclorotiazida 25mg")) return "Hidroclorotiazida 12.5 mg (media tab de 25mg)";
+                if (inv.includes("Hidroclorotiazida 50mg")) return "Hidroclorotiazida 12.5 mg (un cuarto de tab de 50mg)";
             }
             if (escalon === 2) {
-                if (inv.includes("Hidroclorotiazida 25mg")) return "HCTZ 25 mg (1 tab de 25mg)";
-                if (inv.includes("Hidroclorotiazida 50mg")) return "HCTZ 25 mg (media tab de 50mg)";
+                if (inv.includes("Hidroclorotiazida 25mg")) return "Hidroclorotiazida 25 mg (1 tab de 25mg)";
+                if (inv.includes("Hidroclorotiazida 50mg")) return "Hidroclorotiazida 25 mg (media tab de 50mg)";
             }
         }
         return null;
@@ -489,6 +491,19 @@
         let checklistCompleto = true;
         checksSeguridad.forEach(chk => { if(!chk.checked) checklistCompleto = false; });
 
+        // Identificar Fármacos y Dosis Actuales
+        let takesIrbe = actuales.some(m => m.includes("Irbersartan"));
+        let takesEnal = actuales.some(m => m.includes("Enalapril"));
+        let takesAmlo = actuales.some(m => m.includes("Amlodipino"));
+        let takesHctz = actuales.some(m => m.includes("HCTZ"));
+
+        let isIrbeMax = actuales.includes("Irbersartan 300mg");
+        let isEnalMax = actuales.includes("Enalapril 20mg");
+        let isAmloMax = actuales.includes("Amlodipino 10mg");
+        let isHctzMax = actuales.includes("HCTZ 25mg") || actuales.includes("HCTZ 50mg");
+
+        let numMeds = (takesIrbe ? 1 : 0) + (takesEnal ? 1 : 0) + (takesAmlo ? 1 : 0) + (takesHctz ? 1 : 0);
+
         // 2. LÓGICA DE DESESCALONAMIENTO (HIPOTENSIÓN)
         if (gradoHTA === "BAJA") {
             let warnHipo = `<div class="hipo-box" style="padding:15px; margin-bottom:15px; border-radius:5px;">
@@ -506,16 +521,15 @@
                     recoBaja += "Verifique el esquema y <b>reduzca la dosis o suspenda temporalmente</b> su antihipertensivo.";
                     accionParaModoMedico = "Desescalonamiento general (No se especificaron fármacos actuales).";
                 } else {
-                    let hasHighDose = actuales.some(m => m.includes("20mg") || m.includes("300mg") || (m.includes("Amlodipino") && m.includes("10mg")) || (m.includes("HCTZ") && (m.includes("25mg") || m.includes("50mg"))));
-                    let medsText = actuales.join(" + ");
+                    let hasHighDose = isIrbeMax || isEnalMax || isAmloMax || isHctzMax;
 
-                    if (actuales.length >= 2) {
+                    if (numMeds >= 2) {
                         if (hasHighDose) {
                             recoBaja += `<ul><li><b>Bajar escalón (Terapia combinada a dosis media):</b> <b>REDUZCA A LA MITAD la dosis de ambos medicamentos.</b></li></ul>`;
                         } else {
-                            recoBaja += `<ul><li><b>Bajar escalón (Monoterapia):</b> <b>SUSPENDA el medicamento adyuvante</b> (Amlodipino o HCTZ) y deje únicamente el principal (Irbesartán/Enalapril).</li></ul>`;
+                            recoBaja += `<ul><li><b>Bajar escalón (Monoterapia):</b> <b>SUSPENDA el medicamento adyuvante</b> (Amlodipino o Hidroclorotiazida) y deje únicamente el principal (Irbesartán/Enalapril).</li></ul>`;
                         }
-                    } else { // Monoterapia
+                    } else { 
                         if (hasHighDose) {
                             recoBaja += `<ul><li><b>Bajar escalón (Reducir dosis):</b> <b>REDUZCA LA DOSIS A LA MITAD.</b></li></ul>`;
                         } else {
@@ -547,7 +561,6 @@
                 recomendacion = "Priorice cambios en el estilo de vida. Reevaluar periódicamente.";
                 accionParaModoMedico = "Manejo no farmacológico (PA no cumple criterios de HTA).";
             } else {
-                
                 // LÓGICA PACIENTE NUEVO
                 if (pacienteConocido === 'NO') {
                     let opciones = [];
@@ -556,33 +569,35 @@
                         let i = getDosis("Irbersartan", inv, 1), e = getDosis("Enalapril", inv, 1);
                         let a = getDosis("Amlodipino", inv, 1), h = getDosis("Hidroclorotiazida", inv, 1);
                         
-                        if (i) opciones.push(`✅ ${i} al día.`);
-                        if (e) opciones.push(`✅ ${e} al día.`);
-                        if (a) opciones.push(`✅ ${a} al día.`);
-                        if (h) opciones.push(`✅ ${h} al día.`);
+                        let optCount = 1;
+                        if (i) { opciones.push(`<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${i} al día.</div>`); optCount++; }
+                        if (e) { opciones.push(`<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${e} al día.</div>`); optCount++; }
+                        if (a) { opciones.push(`<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${a} al día.</div>`); optCount++; }
+                        if (h) { opciones.push(`<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${h} al día.</div>`); optCount++; }
                         accionParaModoMedico = "Inicio de tratamiento farmacológico escalón 1 (Monoterapia).";
                     } else if (gradoHTA === "HTA2") {
                         recomendacion = "<strong>Tratamiento Inicial (Paso 3 - Terapia Dual a dosis media):</strong><br><br>";
                         let i = getDosis("Irbersartan", inv, 1), e = getDosis("Enalapril", inv, 1);
                         let a = getDosis("Amlodipino", inv, 1), h = getDosis("Hidroclorotiazida", inv, 1);
                         
-                        if (i && a) opciones.push(`✅ ${i} más ${a} al día.`);
-                        if (i && h) opciones.push(`✅ ${i} más ${h} al día.`);
-                        if (e && a) opciones.push(`✅ ${e} más ${a} al día.`);
-                        if (e && h) opciones.push(`✅ ${e} más ${h} al día.`);
+                        let optCount = 1;
+                        if (i && a) { opciones.push(`<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${i} más ${a} al día.</div>`); optCount++; }
+                        if (i && h) { opciones.push(`<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${i} más ${h} al día.</div>`); optCount++; }
+                        if (e && a) { opciones.push(`<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${e} más ${a} al día.</div>`); optCount++; }
+                        if (e && h) { opciones.push(`<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${e} más ${h} al día.</div>`); optCount++; }
                         accionParaModoMedico = "Inicio de tratamiento farmacológico agresivo escalón 3 (Terapia dual).";
                     }
 
                     if (opciones.length === 0) {
                         recomendacion += htmlDesabastecimiento(inv);
                     } else {
-                        recomendacion += opciones.join("<br>");
+                        recomendacion += opciones.join("");
                     }
                 } 
                 // LÓGICA PACIENTE CONOCIDO (Fuera de meta)
                 else {
                     // a) Checklist Fallido (Inercia o falta de técnica)
-                    if (!checklistCompleto) {
+                    if (!checklistCompleto && numMeds > 0) {
                         recomendacion += `<div class="warning-box" style="padding:15px; border-radius:5px; margin-bottom:15px;">
                             <strong>⚠️ ESCALONAMIENTO DETENIDO (Checklist Incompleto):</strong><br><br>
                             Usted indicó que el paciente no cumple con todas las condiciones de seguridad (adherencia, técnica o medicamentos que elevan la PA). <b>Aumentar la dosis ahora es peligroso</b> y puede causar caídas de presión severas en el futuro.<br><br>
@@ -597,63 +612,126 @@
                         accionParaModoMedico = "Intensificación diferida por falla en prerrequisitos clínicos/adherencia.";
 
                     } 
-                    // b) Intensificación Real
+                    // b) Intensificación Estructurada
                     else {
                         recomendacion = "<strong>Paciente Ya Conocido (Intensificación Autorizada):</strong><br><br>";
-                        accionParaModoMedico = "Intensificación de tratamiento (Escalonamiento 3 o 4) tras confirmar adherencia y técnica correcta.";
                         
                         let textoAdversos = evaluarEfectosAdversos(actuales, advTos, advEdema);
                         if (textoAdversos !== "") {
-                            recomendacion += textoAdversos + "<br><em>Tome en cuenta estos cambios por intolerancia al elegir el siguiente escalón:</em><br><br>";
+                            recomendacion += textoAdversos + "<br><em>Tome en cuenta estos cambios por intolerancia al elegir el siguiente escalón.</em><br><br>";
                         }
 
-                        let opciones = [];
-                        let i1 = getDosis("Irbersartan", inv, 1), i2 = getDosis("Irbersartan", inv, 2);
-                        let e1 = getDosis("Enalapril", inv, 1), e2 = getDosis("Enalapril", inv, 2);
-                        let a1 = getDosis("Amlodipino", inv, 1), a2 = getDosis("Amlodipino", inv, 2);
-                        let h1 = getDosis("Hidroclorotiazida", inv, 1), h2 = getDosis("Hidroclorotiazida", inv, 2);
-                        
-                        let opcionesE3 = [];
-                        if (i1 && a1) opcionesE3.push(`- ${i1} más ${a1} al día.`);
-                        if (i1 && h1) opcionesE3.push(`- ${i1} más ${h1} al día.`);
-                        if (e1 && a1) opcionesE3.push(`- ${e1} más ${a1} al día.`);
-                        if (e1 && h1) opcionesE3.push(`- ${e1} más ${h1} al día.`);
-                        
-                        if (opcionesE3.length > 0) {
-                            opciones.push("<strong>Escalón 3 (Dos medicamentos a dosis media):</strong><br><em>⚠️ Use este escalón si el paciente estaba con un solo medicamento a dosis tope y no alcanzó metas.</em>");
-                            opciones.push(opcionesE3.join("<br>"));
-                        }
-                        
-                        let opcionesE4 = [];
-                        if (i2 && a2) opcionesE4.push(`- ${i2} más ${a2} al día.`);
-                        if (i2 && h2) opcionesE4.push(`- ${i2} más ${h2} al día.`);
-                        if (e2 && a2) opcionesE4.push(`- ${e2} más ${a2} al día.`);
-                        if (e2 && h2) opcionesE4.push(`- ${e2} más ${h2} al día.`);
-                        
-                        if (opcionesE4.length > 0) {
-                            opciones.push("<br><strong>Escalón 4 (Dos medicamentos a dosis completa):</strong><br><em>Use este escalón si el paciente ya tomaba combinación a dosis media (Escalón 3) y sigue fuera de metas.</em>");
-                            opciones.push(opcionesE4.join("<br>"));
+                        let htmlOpciones = "";
+                        let i1 = getDosis("Irbersartan", inv, 1);
+                        let i2 = getDosis("Irbersartan", inv, 2);
+                        let e1 = getDosis("Enalapril", inv, 1);
+                        let e2 = getDosis("Enalapril", inv, 2);
+                        let a1 = getDosis("Amlodipino", inv, 1);
+                        let a2 = getDosis("Amlodipino", inv, 2);
+                        let h1 = getDosis("Hidroclorotiazida", inv, 1);
+                        let h2 = getDosis("Hidroclorotiazida", inv, 2);
+
+                        if (numMeds === 0) {
+                            htmlOpciones += "<div style='color:#d32f2f; font-weight:bold;'>El paciente indicó estar en tratamiento pero no marcó ningún medicamento actual. Por favor verifique el esquema.</div>";
+                            accionParaModoMedico = "Error de captura de datos: Cero medicamentos seleccionados en paciente conocido.";
+                        } 
+                        else if (numMeds === 1) {
+                            let isMax = isIrbeMax || isEnalMax || isAmloMax || isHctzMax;
+                            if (!isMax) {
+                                htmlOpciones += "<div style='background-color:#e2e3e5; padding:10px; border-radius:4px;'><strong>Escalón 2 (Maximizar monoterapia actual):</strong><br><em>Aumente el medicamento actual a su dosis máxima.</em></div>";
+                                let optCount = 1;
+                                if (takesIrbe && i2) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${i2} al día.</div>`; optCount++; }
+                                if (takesEnal && e2) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${e2} al día.</div>`; optCount++; }
+                                if (takesAmlo && a2) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${a2} al día.</div>`; optCount++; }
+                                if (takesHctz && h2) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${h2} al día.</div>`; optCount++; }
+                                
+                                if(optCount === 1) htmlOpciones += htmlDesabastecimiento(inv);
+                                accionParaModoMedico = "Intensificación de Escalón 1 a Escalón 2 (Maximización de monoterapia).";
+                            } else {
+                                htmlOpciones += "<div style='background-color:#e2e3e5; padding:10px; border-radius:4px;'><strong>Escalón 3 (Dos medicamentos a dosis media):</strong><br><em>Use este escalón si el paciente estaba con un solo medicamento a dosis tope y no alcanzó metas.</em></div>";
+                                let optCount = 1;
+                                if (takesIrbe || takesHctz) {
+                                    if (i1 && h1) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${i1} más ${h1} al día.</div>`; optCount++; }
+                                    if (i1 && a1) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${i1} más ${a1} al día.</div>`; optCount++; }
+                                }
+                                if (takesEnal || takesHctz) {
+                                    if (e1 && h1) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${e1} más ${h1} al día.</div>`; optCount++; }
+                                    if (e1 && a1) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${e1} más ${a1} al día.</div>`; optCount++; }
+                                }
+                                if(optCount === 1) htmlOpciones += htmlDesabastecimiento(inv);
+                                accionParaModoMedico = "Intensificación de Escalón 2 a Escalón 3 (Terapia dual a dosis media).";
+                            }
+                        } 
+                        else if (numMeds === 2) {
+                            let bothMax = true;
+                            if (takesIrbe && !isIrbeMax) bothMax = false;
+                            if (takesEnal && !isEnalMax) bothMax = false;
+                            if (takesAmlo && !isAmloMax) bothMax = false;
+                            if (takesHctz && !isHctzMax) bothMax = false;
+
+                            if (!bothMax) {
+                                htmlOpciones += "<div style='background-color:#e2e3e5; padding:10px; border-radius:4px;'><strong>Escalón 4 (Dos medicamentos a dosis completa):</strong><br><em>Use este escalón si el paciente ya tomaba combinación a dosis media (Escalón 3) y sigue fuera de metas.</em></div>";
+                                let optCount = 1;
+                                if (takesIrbe && takesHctz && i2 && h2) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${i2} más ${h2} al día.</div>`; optCount++; }
+                                if (takesIrbe && takesAmlo && i2 && a2) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${i2} más ${a2} al día.</div>`; optCount++; }
+                                if (takesEnal && takesHctz && e2 && h2) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${e2} más ${h2} al día.</div>`; optCount++; }
+                                if (takesEnal && takesAmlo && e2 && a2) { htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${e2} más ${a2} al día.</div>`; optCount++; }
+                                
+                                if (optCount === 1) htmlOpciones += htmlDesabastecimiento(inv);
+                                accionParaModoMedico = "Intensificación de Escalón 3 a Escalón 4 (Terapia dual a dosis tope).";
+                            } else {
+                                htmlOpciones += "<div style='background-color:#e2e3e5; padding:10px; border-radius:4px;'><strong>Terapia Triple (Tres medicamentos):</strong><br><em>El paciente ya toma dos medicamentos a dosis plena y no controla. Requiere un tercer medicamento.</em></div>";
+                                
+                                let missingAmlodipino = !takesAmlo;
+                                let missingHctz = !takesHctz;
+                                
+                                let optCount = 1;
+                                let canDoTriple = false;
+
+                                if (missingAmlodipino && a1) {
+                                    htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> Mantener terapia dual actual y AGREGAR ${a1} al día.</div>`;
+                                    canDoTriple = true;
+                                    optCount++;
+                                }
+                                if (missingHctz && h1) {
+                                    htmlOpciones += `<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> Mantener terapia dual actual y AGREGAR ${h1} al día.</div>`;
+                                    canDoTriple = true;
+                                    optCount++;
+                                }
+
+                                if (!canDoTriple) {
+                                    let medFaltante = missingAmlodipino ? "Amlodipino 5 mg (1 tableta)" : "Hidroclorotiazida 12.5 mg";
+                                    htmlOpciones += `<div class="alert-box" style="padding:15px; border-radius:5px; margin-top:10px;">
+                                        <strong>❌ Desabastecimiento para Terapia Triple:</strong> Este paciente requiere un tercer medicamento, pero no está marcado en su inventario actual. <br><br>
+                                        <strong>Acción:</strong> Refiera al CAP u Hospital, o dé receta prescrita por <b>${medFaltante}</b> al día.
+                                    </div>`;
+                                }
+                                accionParaModoMedico = "Intensificación a Terapia Triple (Paso avanzado).";
+                            }
+                        } 
+                        else if (numMeds >= 3) {
+                            htmlOpciones += `<div class="alert-box" style="padding:15px; border-radius:5px; margin-top:10px; border-left: 5px solid #721c24;">
+                                <strong>🚨 Posible Hipertensión Resistente:</strong><br>
+                                El paciente ya está tomando 3 o más medicamentos y continúa fuera de metas.<br><br>
+                                <strong>Acción:</strong> El paciente debe ir al hospital a ser evaluado por un médico internista o cardiólogo para reajuste avanzado y evitar complicaciones severas.
+                            </div>`;
+                            accionParaModoMedico = "Alerta de Hipertensión Resistente detectada. Cese de algoritmo local y referencia obligatoria.";
                         }
 
-                        if (opciones.length === 0) {
-                            recomendacion += htmlDesabastecimiento(inv);
-                        } else {
-                            recomendacion += opciones.join("<br>");
-                        }
+                        recomendacion += htmlOpciones;
                     }
                 }
             }
         }
 
-        // Agregar Modo Médico al final
         resBox.innerHTML = recomendacion + generarModoMedico(accionParaModoMedico);
         resBox.classList.remove('hidden');
     }
 
     function htmlDesabastecimiento(inv) {
-        let sugerencia = "un segundo medicamento complementario (ej. Amlodipino 5mg o HCTZ 12.5mg)";
+        let sugerencia = "un segundo medicamento complementario (ej. Amlodipino 5mg o Hidroclorotiazida 12.5 mg)";
         if (inv.includes("Amlodipino 5mg") || inv.some(m => m.includes("Hidroclorotiazida"))) {
-             sugerencia = "un medicamento bloqueador (ej. Irbesartán 150mg o Enalapril 10mg)";
+             sugerencia = "un medicamento bloqueador (ej. Irbesartán 150 mg o Enalapril 10 mg)";
         }
         return `<div class="alert-box" style="padding:15px; margin-top:10px; border-radius:5px;">
             <strong>❌ Desabastecimiento</strong>, se necesita iniciar o agregar medicamento y no hay combinaciones viables en farmacia.<br><br>
@@ -669,7 +747,7 @@
         if (tos && tomaEnalapril) {
             hasAdv = true;
             let dosisIrbesartan = tomaEnalapril.includes("10mg") ? "Irbesartán 150 mg (1 tab)" : "Irbesartán 300 mg (2 tabs de 150mg)";
-            text += `<div style="background-color: #fce4ec; border-left: 5px solid #e91e63; padding: 12px; margin-bottom: 10px; border-radius: 4px; color:#880e4f;">
+            text += `<div style="background-color: #fce4ec; border-left: 5px solid #e91e63; padding: 12px; margin-top: 10px; border-radius: 4px; color:#880e4f;">
                 <b>Efecto Adverso (Tos persistente):</b> El paciente presenta intolerancia a Enalapril. <br>
                 <b>SUSPENDA el ${tomaEnalapril}</b> y sustitúyalo exactamente por <b>${dosisIrbesartan}</b> al día.
             </div>`;
@@ -678,13 +756,13 @@
         let tomaAmlodipino = actuales.find(m => m.includes("Amlodipino"));
         if (edema && tomaAmlodipino) {
             hasAdv = true;
-            text += `<div style="background-color: #e8eaf6; border-left: 5px solid #3f51b5; padding: 12px; margin-bottom: 10px; border-radius: 4px; color:#1a237e;">
+            text += `<div style="background-color: #e8eaf6; border-left: 5px solid #3f51b5; padding: 12px; margin-top: 10px; border-radius: 4px; color:#1a237e;">
                 <b>Efecto Adverso (Tobillos hinchados):</b> El Amlodipino es la causa más probable de los tobillos hinchados. <br>
-                Si la hinchazón es muy molesta, <b>SUSPENDA el ${tomaAmlodipino}</b> y sustitúyalo por <b>HCTZ 12.5 mg</b>, o refiera al médico.
+                Si la hinchazón es muy molesta, <b>SUSPENDA el ${tomaAmlodipino}</b> y sustitúyalo por <b>Hidroclorotiazida 12.5 mg</b>, o refiera al médico.
             </div>`;
         }
 
-        return hasAdv ? `<strong>⚠️ Manejo de Intolerancias:</strong><br>${text}` : "";
+        return hasAdv ? `<div style="margin-top:15px;"><strong>⚠️ Manejo de Intolerancias:</strong>${text}</div>` : "";
     }
 
     toggleTomas();
