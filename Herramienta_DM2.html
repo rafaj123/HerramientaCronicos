@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algoritmo Clínico - Diabetes Mellitus (DM2)</title>
+    <title>Algoritmo Clínico - Diabetes Mellitus (DM2) y Prediabetes</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 20px; color: #333; }
         .app-container { background-color: #ffffff; padding: 25px; max-width: 700px; margin: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -49,7 +49,7 @@
 <body>
 
 <div class="app-container">
-    <h2>Algoritmo DM2 (HEARTS / ADA)</h2>
+    <h2>Algoritmo DM2 y Prediabetes (HEARTS / ADA)</h2>
     
     <div class="disclaimer">
         <strong>⚠️ DESCARGO DE RESPONSABILIDAD LEGAL Y CLÍNICA:</strong><br>
@@ -59,10 +59,11 @@
 
     <!-- PREGUNTA INICIAL -->
     <div class="form-group">
-        <label>1. ¿El paciente YA TIENE diagnóstico confirmado de Diabetes Mellitus tipo 2?</label>
+        <label>1. ¿El paciente YA TIENE diagnóstico confirmado de Diabetes o Prediabetes?</label>
         <select id="tieneDiagnostico" onchange="seleccionarRuta()">
             <option value="">-- Seleccione una opción --</option>
-            <option value="si">SÍ, ya es diabético conocido</option>
+            <option value="si">SÍ, ya es diabético (DM2) conocido</option>
+            <option value="pre">SÍ, es PREDIABÉTICO conocido</option>
             <option value="no">NO, vengo a evaluarlo / tamizarlo</option>
         </select>
     </div>
@@ -153,7 +154,7 @@
 
     <!-- ================= MÓDULO 2: CONTROL Y TRATAMIENTO ================= -->
     <div id="modulo-tratamiento">
-        <div class="section-title">Evaluación de Control y Escalonamiento</div>
+        <div class="section-title" id="titulo-mod-tx">Evaluación de Control y Escalonamiento</div>
         
         <div class="form-group">
             <label>A. Tipo de medición de glucosa actual:</label>
@@ -191,10 +192,10 @@
                 <div class="checkbox-item"><input type="checkbox" id="stockMet500"> Metformina 500 mg</div>
                 <div class="checkbox-item"><input type="checkbox" id="stockMet850"> Metformina 850 mg</div>
                 <div class="checkbox-item"><input type="checkbox" id="stockMet1000"> Metformina 1000 mg</div>
-                <div class="checkbox-item"><input type="checkbox" id="stockGlime4"> Glimepirida 4 mg</div>
-                <div class="checkbox-item"><input type="checkbox" id="stockGlicla60"> Gliclazida 60 mg</div>
-                <div class="checkbox-item"><input type="checkbox" id="stockCana100"> Canagliflozina 100 mg</div>
-                <div class="checkbox-item"><input type="checkbox" id="stockCana300"> Canagliflozina 300 mg</div>
+                <div class="checkbox-item hide-on-pre"><input type="checkbox" id="stockGlime4"> Glimepirida 4 mg</div>
+                <div class="checkbox-item hide-on-pre"><input type="checkbox" id="stockGlicla60"> Gliclazida 60 mg</div>
+                <div class="checkbox-item hide-on-pre"><input type="checkbox" id="stockCana100"> Canagliflozina 100 mg</div>
+                <div class="checkbox-item hide-on-pre"><input type="checkbox" id="stockCana300"> Canagliflozina 300 mg</div>
             </div>
         </div>
 
@@ -215,7 +216,7 @@
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-group hide-on-pre">
             <label>F. Sulfonilurea que toma actualmente:</label>
             <select id="txSulfonilurea">
                 <option value="0">Ninguna</option>
@@ -225,7 +226,7 @@
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-group hide-on-pre">
             <label>G. iSGLT2 que toma actualmente:</label>
             <select id="txSglt2">
                 <option value="0">Ninguno</option>
@@ -235,7 +236,7 @@
             </select>
         </div>
 
-        <button onclick="evaluarTratamiento()">Calcular Escalonamiento</button>
+        <button onclick="evaluarTratamiento()">Calcular Control y Recomendaciones</button>
     </div>
 
     <!-- CAJA DE RESULTADOS -->
@@ -259,9 +260,17 @@
         if(ruta === 'no') {
             document.getElementById('modulo-diagnostico').style.display = 'block';
             document.getElementById('modulo-tratamiento').style.display = 'none';
-        } else if (ruta === 'si') {
+        } else if (ruta === 'si' || ruta === 'pre') {
             document.getElementById('modulo-diagnostico').style.display = 'none';
             document.getElementById('modulo-tratamiento').style.display = 'block';
+            
+            // Adaptar interfaz si es Prediabetes
+            let els = document.getElementsByClassName('hide-on-pre');
+            for(let i=0; i<els.length; i++) {
+                els[i].style.display = (ruta === 'pre') ? 'none' : '';
+            }
+            
+            document.getElementById('titulo-mod-tx').innerText = (ruta === 'pre') ? "Evaluación de Control - PREDIABETES" : "Evaluación de Control y Escalonamiento (DM2)";
         } else {
             document.getElementById('modulo-diagnostico').style.display = 'none';
             document.getElementById('modulo-tratamiento').style.display = 'none';
@@ -305,7 +314,7 @@
         });
     }
 
-    // --- REUTILIZABLE: HTML DE PREDIABETES ---
+    // --- REUTILIZABLE: HTML DE PREDIABETES (Módulo 1) ---
     function generarHtmlPrediabetes() {
         return `
         El valor indica <b>PREDIABETES</b> (Glucosa alterada o intolerancia). Dé plan educacional (dieta, ejercicio) y cite a control.
@@ -487,6 +496,12 @@
         document.getElementById('modulo-diagnostico').style.display = 'none';
         document.getElementById('modulo-tratamiento').style.display = 'block';
         
+        let els = document.getElementsByClassName('hide-on-pre');
+        for(let i=0; i<els.length; i++) {
+            els[i].style.display = '';
+        }
+        document.getElementById('titulo-mod-tx').innerText = "Evaluación de Control y Escalonamiento (DM2)";
+        
         let tipoTx = (tipo === 'azar' || tipo === 'posprandial') ? 'azar' : tipo;
         document.getElementById('tipoGlucosaTx').value = tipoTx;
         document.getElementById('valorGlucosaTx').value = valor;
@@ -516,14 +531,108 @@
         contenido.innerHTML = html;
     }
 
-    // --- LÓGICA DE TRATAMIENTO ---
+    // --- LÓGICA DE TRATAMIENTO Y CONTROL ---
     function evaluarTratamiento() {
+        let ruta = document.getElementById('tieneDiagnostico').value;
         let tipo = document.getElementById('tipoGlucosaTx').value;
         let valor = parseFloat(document.getElementById('valorGlucosaTx').value);
+        let met = document.getElementById('txMetformina').value;
         
         if(!valor) { alert("Ingrese el valor numérico de la glucosa actual."); return; }
 
-        let met = document.getElementById('txMetformina').value;
+        // ==============================================
+        // LÓGICA EXCLUSIVA PARA PACIENTE PREDIABÉTICO
+        // ==============================================
+        if (ruta === 'pre') {
+            let estadoPre = "";
+            let metaTextoPre = "";
+            let isHipoPre = false;
+
+            if (tipo === 'ayunas') {
+                metaTextoPre = "Normoglucemia: < 100 mg/dl";
+                if (valor < 70) isHipoPre = true;
+                else if (valor < 100) estadoPre = "NORMAL";
+                else if (valor < 126) estadoPre = "PRE";
+                else estadoPre = "DM";
+            } else if (tipo === 'azar') {
+                metaTextoPre = "Normoglucemia: < 140 mg/dl";
+                if (valor < 70) isHipoPre = true;
+                else if (valor < 140) estadoPre = "NORMAL";
+                else if (valor < 200) estadoPre = "PRE";
+                else estadoPre = "DM";
+            } else if (tipo === 'hba1c') {
+                metaTextoPre = "Normoglucemia: < 5.7%";
+                if (valor < 5.7) estadoPre = "NORMAL"; 
+                else if (valor < 6.5) estadoPre = "PRE";
+                else estadoPre = "DM";
+            }
+
+            let box = document.getElementById('resultado-box');
+            let banner = document.getElementById('estado-control-banner');
+            let contenido = document.getElementById('mensaje-clinico');
+            
+            box.style.display = "block";
+            let htmlRecos = "<ul>";
+
+            if (isHipoPre) {
+                box.style.borderColor = "#ffeeba";
+                banner.className = "estado-control discordancia";
+                banner.innerText = `⚠️ ALERTA DE HIPOGLUCEMIA`;
+                htmlRecos += `<li class="alerta-roja" style="padding:10px; background-color:#fff9c4; border-radius:5px;"><b>SUSPENDA la Metformina</b> inmediatamente. Si el paciente presenta síntomas graves, trate con 15-20g de carbohidratos.</li>`;
+            } else if (estadoPre === "NORMAL") {
+                box.style.borderColor = "#c3e6cb";
+                banner.className = "estado-control bien-controlado";
+                banner.innerText = `NORMOGLUCEMIA ALCANZADA (${metaTextoPre})`;
+                
+                if (met !== '0') {
+                    htmlRecos += `<li><b>Indicación Médica:</b> El paciente ha revertido exitosamente a niveles normales de glucosa. <b>SUSPENDA la Metformina</b> (ya no cumple con los criterios de mantenerla). Felicite al paciente.</li>`;
+                } else {
+                    htmlRecos += `<li><b>Indicación Médica:</b> El paciente mantiene niveles normales. Felicítelo.</li>`;
+                }
+                htmlRecos += `<li><b>Consejería general:</b> Es vital que el paciente mantenga la dieta y el ejercicio para no recaer en la prediabetes.</li>`;
+                htmlRecos += `<li><b>Cita:</b> Agende control en 3 a 6 meses.</li>`;
+                
+            } else if (estadoPre === "PRE") {
+                box.style.borderColor = "#ffeeba";
+                banner.className = "estado-control discordancia";
+                banner.innerText = `SE MANTIENE EN PREDIABETES`;
+                
+                if (met !== '0') {
+                    htmlRecos += `<li><b>Indicación Médica:</b> Continúe con la dosis actual de Metformina.</li>`;
+                } else {
+                    htmlRecos += `<li><b>Indicación Médica:</b> Mantenga vigilancia. <i>Considere iniciar Metformina si cumple criterios adicionales (obesidad, SOP, <60 años, etc.).</i></li>`;
+                }
+                htmlRecos += `<li><b>Consejería general:</b> Refuerce el plan de dieta sin azúcares y ejercicio físico diario.</li>`;
+                htmlRecos += `<li><b>Cita:</b> Agende control en 3 meses.</li>`;
+
+            } else if (estadoPre === "DM") {
+                box.style.borderColor = "#f5c6cb";
+                banner.className = "estado-control mal-controlado";
+                banner.innerText = `⚠️ PROGRESIÓN A DIABETES MELLITUS`;
+                
+                htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #d32f2f; background-color: #ffebee; border-radius: 5px;">Los valores del paciente han superado el umbral. <b>El paciente debe ser diagnosticado y tratado formalmente como diabético (DM2).</b> Cambie el diagnóstico en su expediente.</li>`;
+                
+                if (met !== '0') {
+                    htmlRecos += `<li><b>Escalonamiento:</b> Como el paciente ya tomaba Metformina, <b>AUMENTE LA DOSIS</b> al siguiente escalón (ej. de 1 a 2 veces al día).</li>`;
+                } else {
+                    htmlRecos += `<li><b>Tratamiento Inicial:</b> Inicie <b>Metformina</b> (500mg u 850mg) 1 vez al día.</li>`;
+                }
+                htmlRecos += `<li><b>Cita:</b> Cite en 1 mes para control estricto bajo el algoritmo de Diabetes.</li>`;
+            }
+
+            htmlRecos += `<div style="margin-top:15px; padding:12px; background-color:#e1f5fe; border-left:5px solid #03a9f4; border-radius:4px; color:#01579b; font-size: 14px;">
+                <strong>📌 RECORDATORIO SIGSA:</strong> Siga registrando como <b>"TAMIZAJE DE LA GLUCOSA"</b> (Z13.1) o actualice a DM2 (E11.9) si progresó.
+            </div>`;
+
+            htmlRecos += "</ul>";
+            contenido.innerHTML = htmlRecos;
+            return;
+        }
+
+        // ==============================================
+        // LÓGICA ESTÁNDAR PARA PACIENTE DIABÉTICO (DM2)
+        // ==============================================
+
         let su = document.getElementById('txSulfonilurea').value;
         let isglt2 = document.getElementById('txSglt2').value;
 
@@ -548,7 +657,6 @@
         let hipoglucemia = false;
         let metaTexto = "";
 
-        // Metas ADA y Detección de Hipoglucemia
         if(tipo === 'ayunas') {
             metaTexto = "Meta: 70 a 130 mg/dl";
             if(valor < 70) hipoglucemia = true;
@@ -596,10 +704,34 @@
         }
 
         if (hipoglucemia) {
-            htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #ff9800; background-color: #fff9c4; border-radius: 5px;">⚠️ RIESGO DE HIPOGLUCEMIA (Sobrecontrol):<br>
-            Los niveles están peligrosamente por debajo del límite seguro.<br>
-            <b>Indicación Médica: Retire o disminuya la dosis del último medicamento agregado al esquema.</b> Si el paciente presenta síntomas graves de hipoglucemia (sudoración fría, mareo, desmayo), trate inmediatamente con carbohidratos de absorción rápida.</li>`;
-            htmlRecos += "<li><b>Cita:</b> Agende cita a corto plazo para verificar que la glucosa se haya estabilizado sin el medicamento retirado.</li>";
+            let recoBaja = "";
+            if (isglt2 !== '0') {
+                recoBaja = `<b>SUSPENDA el iSGLT2</b> (Canagliflozina). Mantenga el resto del esquema tal como estaba.`;
+            } else if (su !== '0') {
+                recoBaja = `<b>SUSPENDA la Sulfonilurea</b> (Glimepirida o Gliclazida). Las sulfonilureas son la causa principal de hipoglucemias. Mantenga la Metformina en la misma dosis.`;
+            } else if (met !== '0') {
+                if (met === '500x3' || met === '850x3' || met === '1000x2') {
+                    recoBaja = `<b>REDUZCA la Metformina</b> a 2 veces al día.`;
+                } else if (met === '500x2' || met === '850x2') {
+                    recoBaja = `<b>REDUZCA la Metformina</b> a 1 vez al día.`;
+                } else {
+                    recoBaja = `<b>SUSPENDA la Metformina</b> temporalmente.`;
+                }
+            } else {
+                recoBaja = `El paciente no reporta tomar medicamentos orales actualmente. Evalúe causas de la hipoglucemia como ayuno prolongado, desnutrición severa o enfermedad sistémica.`;
+            }
+
+            htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #ff9800; background-color: #fff9c4; border-radius: 5px;">
+            ⚠️ <strong>RIESGO DE HIPOGLUCEMIA (Sobrecontrol):</strong><br>
+            Los niveles de glucosa están peligrosamente bajos.<br><br>
+            <strong>1. TRATAMIENTO DE EMERGENCIA (Regla de los 15):</strong><br>
+            • <strong>Si el paciente está CONSCIENTE y tolera la vía oral:</strong> Dar 15 a 20 gramos de carbohidratos de absorción rápida (Ej: media lata de gaseosa normal NO dietética, 1 cucharada sopera colmada de azúcar disuelta en agua, o 3 dulces/caramelos). Controlar nuevamente la glucosa en 15 minutos.<br>
+            • <strong>Si el paciente está INCONSCIENTE o NO tolera la vía oral:</strong> Administrar 200cc de Dextrosa al 10% IV y controlar nuevamente en 15 minutos. <br>
+            • <em>Si los síntomas continúan o empeoran, referir inmediatamente a la unidad de mayor capacidad más cercana (CAP u Hospital).</em><br><br>
+            <strong>2. AJUSTE DE MEDICACIÓN (Desescalonamiento):</strong><br>
+            ${recoBaja}</li>`;
+            
+            htmlRecos += "<li><b>Cita:</b> Agende cita a corto plazo (1 a 2 semanas) para verificar que la glucosa se haya estabilizado sin el medicamento que fue retirado/disminuido.</li>";
         }
         else if (!malControlado) {
             htmlRecos += "<li><b>Consejería general:</b> Reforzar dieta sin azúcares simples, vegetales diarios, control de porciones y ejercicio 30 min/día (5 días a la semana).</li>";
@@ -661,7 +793,7 @@
 
         htmlRecos += "<li><b>Pasos Administrativos:</b> Referir al CAP u Hospital más cercano para completar tratamiento o dar receta, y <b>recuerde usar la herramienta de requisición de medicamentos</b>.</li>";
 
-        // Examen de Pie Diabético detallado con imágenes
+        // Examen de Pie Diabético
         htmlRecos += `<li><b>Evaluación de extremidades (Pie Diabético):</b> Utilice el monofilamento o la punta del martillo de reflejos para evaluar la sensibilidad en el pie. 
         <br><i>Toque los puntos señalados en los esquemas con el filamento y el paciente con los ojos cerrados; si el paciente no siente al menos UNO de los toques, es un pie de riesgo.</i>
         <div style="text-align:center; margin-top: 15px; margin-bottom: 15px;">
