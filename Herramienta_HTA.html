@@ -21,6 +21,7 @@
         .result-box { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border-left: 5px solid #c3e6cb; margin-top: 20px; font-size: 1.1em; }
         .alert-box { background-color: #f8d7da; color: #721c24; border-left: 5px solid #f5c6cb; }
         .warning-box { background-color: #fff3cd; color: #856404; border-left: 5px solid #ffeeba; }
+        .hipo-box { background-color: #fff9c4; color: #e65100; border-left: 5px solid #ff9800; }
         ul { margin-top: 5px; padding-left: 20px; }
         .meta-text { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
     </style>
@@ -184,7 +185,11 @@
         let clase = "result-box";
         esEmergencia = false;
 
-        if (sysPromedio >= 180 || diaPromedio >= 120) {
+        if (sysPromedio < 100 || diaPromedio < 60) {
+            diagnostico = "Presión Arterial Baja (Hipotensión)";
+            gradoHTA = "BAJA";
+            clase += " hipo-box";
+        } else if (sysPromedio >= 180 || diaPromedio >= 120) {
             diagnostico = "Hipertensión arterial (HTA) grado 2 con posible emergencia hipertensiva";
             gradoHTA = "HTA2";
             esEmergencia = true;
@@ -227,17 +232,22 @@
             metaDia = 80;
         }
 
-        enMeta = (sysPromedio < metaSys && diaPromedio < metaDia);
         const boxMeta = document.getElementById('resultadoMeta');
-        
         let textoMeta = `Objetivo de Presión Arterial según RCV: <strong><${metaSys}/${metaDia} mmHg</strong><br>`;
         
-        if (enMeta) {
-            textoMeta += `<div class="meta-text" style="color: #155724; margin-top: 10px;">✅ EL PACIENTE ESTÁ EN LA META</div>`;
-            boxMeta.className = "result-box";
+        if (gradoHTA === 'BAJA') {
+            enMeta = false;
+            textoMeta += `<div class="meta-text" style="color: #e65100; margin-top: 10px;">⚠️ PACIENTE CON SOBRECONTROL (HIPOTENSIÓN)</div>`;
+            boxMeta.className = "result-box hipo-box";
         } else {
-            textoMeta += `<div class="meta-text" style="color: #721c24; margin-top: 10px;">❌ EL PACIENTE ESTÁ FUERA DE LA META</div>`;
-            boxMeta.className = "result-box alert-box";
+            enMeta = (sysPromedio < metaSys && diaPromedio < metaDia);
+            if (enMeta) {
+                textoMeta += `<div class="meta-text" style="color: #155724; margin-top: 10px;">✅ EL PACIENTE ESTÁ EN LA META</div>`;
+                boxMeta.className = "result-box";
+            } else {
+                textoMeta += `<div class="meta-text" style="color: #721c24; margin-top: 10px;">❌ EL PACIENTE ESTÁ FUERA DE LA META</div>`;
+                boxMeta.className = "result-box alert-box";
+            }
         }
 
         boxMeta.innerHTML = textoMeta;
@@ -245,7 +255,6 @@
         document.getElementById('seccionTratamiento').classList.remove('hidden');
     }
 
-    // Motor dinámico de dosificación con textos altamente específicos
     function getDosis(med, inv, escalon) {
         if (med === "Irbersartan") {
             if (escalon === 1 && inv.includes("Irbersartan 150mg")) return "Irbesartán 150 mg (1 tableta de 150mg)";
@@ -281,9 +290,54 @@
         
         let recomendacion = "";
 
-        if (enMeta) {
+        // ==========================================
+        // 🚨 LÓGICA DE DESESCALONAMIENTO (HIPOTENSIÓN)
+        // ==========================================
+        if (gradoHTA === "BAJA") {
+            let warnHipo = `<div class="hipo-box" style="padding:15px; margin-bottom:15px; border-radius:5px;">
+                <strong>⚠️ PRESIÓN ARTERIAL BAJA</strong><br><br>
+                Busque síntomas de alarma como mareo (especialmente al levantarse rápido de la cama), náuseas, visión borrosa, palpitaciones, taquicardia, etc.
+            </div>`;
+            
+            if (pacienteConocido === 'NO') {
+                recomendacion = warnHipo + "<strong>Paciente sin tratamiento farmacológico previo:</strong><br>Aconseje hidratación adecuada. Evalúe otras causas de hipotensión (deshidratación, infecciones, sangrado, etc.). No inicie antihipertensivos.";
+            } else {
+                const actuales = Array.from(document.querySelectorAll('.medActual:checked')).map(cb => cb.value);
+                let recoBaja = "<strong>Indicación Médica (Desescalonamiento / Step Down):</strong><br>El paciente presenta sobrecontrol. Es necesario reducir la carga farmacológica para evitar caídas o síncopes.<br><br>";
+                
+                if (actuales.length === 0) {
+                    recoBaja += "El paciente indicó estar en tratamiento pero no marcó ningún medicamento actual. Por favor verifique el esquema y <b>reduzca la dosis o suspenda temporalmente</b> su antihipertensivo.";
+                } else {
+                    let hasHighDose = actuales.some(m => m.includes("20mg") || m.includes("300mg") || (m.includes("Amlodipino") && m.includes("10mg")) || (m.includes("HCTZ") && (m.includes("25mg") || m.includes("50mg"))));
+                    let medsText = actuales.join(" + ");
+
+                    if (actuales.length >= 2) {
+                        if (hasHighDose) {
+                            recoBaja += `<ul><li><b>Bajar al escalón anterior (Terapia combinada a dosis media):</b> El paciente toma combinaciones a dosis máxima o alta. <b>REDUZCA A LA MITAD la dosis de ambos medicamentos.</b></li></ul>`;
+                        } else {
+                            recoBaja += `<ul><li><b>Bajar al escalón anterior (Monoterapia):</b> El paciente toma terapia combinada a dosis baja/media. <b>SUSPENDA el medicamento adyuvante</b> (Amlodipino o Hidroclorotiazida) y deje únicamente el medicamento principal (Irbesartán o Enalapril).</li></ul>`;
+                        }
+                    } else { // Monoterapia
+                        if (hasHighDose) {
+                            recoBaja += `<ul><li><b>Bajar al escalón anterior (Reducir dosis):</b> El paciente toma monoterapia a dosis alta (${medsText}). <b>REDUZCA LA DOSIS A LA MITAD.</b></li></ul>`;
+                        } else {
+                            recoBaja += `<ul><li><b>Bajar al escalón anterior (Suspensión):</b> El paciente ya toma la dosis mínima de monoterapia (${medsText}). <b>SUSPENDA EL MEDICAMENTO</b> temporalmente. Aconseje hidratación y cite en 1 a 2 semanas para reevaluación estricta de la presión.</li></ul>`;
+                        }
+                    }
+                }
+                recomendacion = warnHipo + recoBaja;
+            }
+        } 
+        // ==========================================
+        // ✅ PACIENTE EN META
+        // ==========================================
+        else if (enMeta) {
             recomendacion = "Presión en metas. Continúe con el mismo tratamiento (o estilo de vida) y cite en 1 a 3 meses.";
-        } else if (gradoHTA === "NORMAL" || gradoHTA === "ELEVADA") {
+        } 
+        // ==========================================
+        // 🔄 PACIENTE FUERA DE META O PREHIPERTENSO
+        // ==========================================
+        else if (gradoHTA === "NORMAL" || gradoHTA === "ELEVADA") {
             recomendacion = "Priorice cambios en el estilo de vida. Reevaluar periódicamente.";
         } else {
             let opciones = [];
