@@ -63,6 +63,10 @@
         .opcion-escalon { background-color: #fff; border: 1px solid #ccc; padding: 10px; margin-top: 8px; border-radius: 4px; border-left: 4px solid #0056b3; margin-bottom: 5px;}
         
         .alerta-ptog { background-color: #fff3cd; padding: 10px; border-radius: 4px; font-size: 0.85em; margin-bottom: 15px; color: #856404; border-left: 4px solid #ffc107; line-height: 1.4; }
+        
+        .caja-metas-hba1c { background-color: #e8eaf6; padding: 15px; border-radius: 8px; border-left: 5px solid #3f51b5; margin-bottom: 15px; display: none; }
+        .caja-metas-hba1c label { color: #1a237e; }
+        .caja-metas-hba1c select { border-color: #9fa8da; }
     </style>
 </head>
 <body>
@@ -163,7 +167,7 @@
 
             <!-- PTOG ANT -->
             <div class="checkbox-item" style="margin-bottom: 8px;">
-                <input type="checkbox" id="chkAntPos" onchange="toggleInputAnt('Pos')"> <b>PTOG:</b> Glucosa plasmática 2 hrs después de carga oral de 75g <i>(Solo hecha en laboratorio de Hospital/CAP/Privado)</i>
+                <input type="checkbox" id="chkAntPos" onchange="toggleInputAnt('Pos')"> <b>PTOG:</b> Glucosa plasmática 2 hrs después de carga oral de 75g <i>(Solo hecha en laboratorio)</i>
             </div>
             <div id="cajaAntPos" class="ant-input-box" style="display:none;">
                 <input type="number" id="valAntPos" placeholder="Valor numérico PTOG (2 horas)" step="0.1">
@@ -189,7 +193,7 @@
             <select id="tipoGlucosaDx" onchange="toggleSintomasActual()">
                 <option value="ayunas">Ayunas (De 8 a 14 horas de no comer)</option>
                 <option value="azar">Al azar (Comió hace menos de 8 horas o no sabe)</option>
-                <option value="posprandial">PTOG: Glucosa plasmática 2 hrs después de carga oral de 75g (Solo de laboratorio/CAP/Hospital)</option>
+                <option value="posprandial">PTOG: Glucosa plasmática 2 hrs después de carga oral de 75g (Solo de laboratorio)</option>
                 <option value="hba1c">Hemoglobina Glucosilada - HbA1c (Laboratorio venoso)</option>
             </select>
         </div>
@@ -216,11 +220,31 @@
         
         <div class="form-group">
             <label>A. Tipo de medición de glucosa actual:</label>
-            <select id="tipoGlucosaTx">
+            <select id="tipoGlucosaTx" onchange="toggleMetasHbA1c()">
                 <option value="ayunas">Ayunas</option>
                 <option value="azar">Al azar / PTOG</option>
                 <option value="hba1c">Hemoglobina Glucosilada (HbA1c)</option>
             </select>
+        </div>
+
+        <!-- CHECKLIST DE METAS INDIVIDUALIZADAS (Solo visible para HbA1c) -->
+        <div id="cajaMetasHbA1c" class="caja-metas-hba1c">
+            <label style="font-size: 1.05em; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #9fa8da; padding-bottom: 5px;">🎯 Asignación de Meta Individualizada</label>
+            
+            <label style="margin-top: 10px;">1. ¿Qué edad tiene el paciente?</label>
+            <select id="edadHbA1c" style="margin-bottom: 10px;">
+                <option value="joven">Adulto NO mayor (Menor de 65 años)</option>
+                <option value="mayor">Adulto MAYOR (65 años o más)</option>
+            </select>
+
+            <label>2. ¿El paciente tiene otras enfermedades graves o complicaciones? (ej. problemas del corazón, daño en los riñones, antecedente de infarto, cáncer o expectativa de vida corta)</label>
+            <select id="comorbHbA1c">
+                <option value="no">NO, es un paciente sin otras complicaciones graves</option>
+                <option value="si">SÍ, tiene comorbilidades graves o complicaciones</option>
+            </select>
+            <div style="font-size: 0.85em; color: #5c6bc0; margin-top: 8px;">
+                <i>La herramienta usará estos datos para calcular si a este paciente se le debe exigir un control estricto o un control más relajado.</i>
+            </div>
         </div>
 
         <div class="form-group">
@@ -349,6 +373,15 @@
     function toggleInputAnt(tipo) {
         let chk = document.getElementById('chkAnt' + tipo).checked;
         document.getElementById('cajaAnt' + tipo).style.display = chk ? 'block' : 'none';
+    }
+
+    function toggleMetasHbA1c() {
+        let tipoTx = document.getElementById('tipoGlucosaTx').value;
+        if(tipoTx === 'hba1c' && document.getElementById('tieneDiagnostico').value === 'si') {
+            document.getElementById('cajaMetasHbA1c').style.display = 'block';
+        } else {
+            document.getElementById('cajaMetasHbA1c').style.display = 'none';
+        }
     }
 
     function limpiarComplicaciones() {
@@ -555,6 +588,7 @@
         let tipoTx = (tipo === 'azar' || tipo === 'posprandial') ? 'azar' : tipo;
         document.getElementById('tipoGlucosaTx').value = tipoTx;
         document.getElementById('valorGlucosaTx').value = valor;
+        toggleMetasHbA1c(); // Validar si necesita mostrar la caja
         document.getElementById('resultado-box').style.display = 'none';
         window.scrollTo(0, 0);
     }
@@ -720,6 +754,7 @@
         let malControlado = false;
         let alertaCritica = false;
         let hipoglucemia = false;
+        let sobretratado = false;
         let metaTexto = "";
 
         if(tipo === 'ayunas') {
@@ -733,9 +768,35 @@
             else if(valor >= 180) malControlado = true;
             if(valor > 300) alertaCritica = true;
         } else if (tipo === 'hba1c') {
-            metaTexto = "Meta: 6.0% a 7.0%";
-            if(valor < 6.0) hipoglucemia = true;
-            else if(valor >= 7.0) malControlado = true;
+            let edad = document.getElementById('edadHbA1c').value;
+            let comorb = document.getElementById('comorbHbA1c').value;
+            let metaSuperior = 0;
+            
+            // Asignación de Metas Individualizadas (ADA)
+            if (edad === 'joven' && comorb === 'no') { 
+                metaSuperior = 6.5; 
+                metaTexto = "Meta estricta para adultos jóvenes y sanos: < 6.5%"; 
+                logicaMedico += "Asignación de meta estricta (<6.5%) para adulto joven sin comorbilidades. ";
+            }
+            else if (edad === 'joven' && comorb === 'si') { 
+                metaSuperior = 7.0; 
+                metaTexto = "Meta estándar para adulto no mayor con comorbilidad: < 7.0%"; 
+                logicaMedico += "Asignación de meta estándar (<7.0%) por presencia de comorbilidades en adulto joven. ";
+            }
+            else if (edad === 'mayor' && comorb === 'no') { 
+                metaSuperior = 7.5; 
+                metaTexto = "Meta relajada para adulto mayor funcional: < 7.5%"; 
+                logicaMedico += "Asignación de meta moderada (<7.5%) para adulto mayor sin comorbilidad grave (prevención de hipoglucemia). ";
+            }
+            else if (edad === 'mayor' && comorb === 'si') { 
+                metaSuperior = 8.0; 
+                metaTexto = "Meta flexible para adulto mayor con daño crónico: < 8.0%"; 
+                logicaMedico += "Asignación de meta flexible (<8.0%) para adulto mayor con comorbilidad avanzada. ";
+            }
+            
+            if(valor < 6.0) sobretratado = true; // El corte de "HbA1c baja" no es hipoglucemia aguda, es sobretratamiento crónico.
+            else if(valor >= metaSuperior) malControlado = true;
+            
             if(valor > 10.0) alertaCritica = true;
         }
         
@@ -743,6 +804,10 @@
             box.style.borderColor = "#ffeeba";
             banner.className = "estado-control discordancia";
             banner.innerText = `⚠️ ALERTA DE HIPOGLUCEMIA (Por debajo de meta. ${metaTexto})`;
+        } else if (sobretratado) {
+            box.style.borderColor = "#ffeeba";
+            banner.className = "estado-control discordancia";
+            banner.innerText = `⚠️ POSIBLE EXCESO DE MEDICACIÓN (Por debajo de meta. ${metaTexto})`;
         } else if (malControlado) {
             box.style.borderColor = "#f5c6cb";
             banner.className = "estado-control mal-controlado";
@@ -762,6 +827,7 @@
         }
 
         if (hipoglucemia) {
+            // Hipoglucemia Aguda (Glucosa < 70)
             let recoBaja = "";
             if (su !== '0') {
                 recoBaja = `<b>SUSPENDA la Sulfonilurea</b> (Glimepirida o Gliclazida). Las sulfonilureas son la causa farmacológica principal de hipoglucemias severas. Mantenga la Metformina en su dosis actual.`;
@@ -773,10 +839,10 @@
                 recoBaja = `<b>Tratar hipoglucemia según protocolo, confirmar el resultado si es posible y buscar la causa.</b><br><br>
                 <span style="color:#d32f2f;"><b>La metformina por sí sola rara vez produce hipoglucemia. NO SUSPENDER automáticamente sin valorar el contexto clínico.</b></span><br>
                 Evalúe si existe: ayuno prolongado severo, enfermedad aguda grave, insuficiencia renal avanzada o consumo de alcohol.`;
-                logicaMedico = "Hipoglucemia en monoterapia con Metformina. Búsqueda de causas secundarias sin suspensión inmediata, dado el bajo riesgo intrínseco del fármaco.";
+                logicaMedico += " Hipoglucemia en monoterapia con Metformina. Búsqueda de causas secundarias sin suspensión inmediata, dado el bajo riesgo intrínseco del fármaco.";
             } else {
                 recoBaja = `El paciente no reporta tomar medicamentos orales. Evalúe causas subyacentes como ayuno prolongado, desnutrición severa o enfermedad sistémica grave.`;
-                logicaMedico = "Hipoglucemia espontánea/no farmacológica. Evaluación exhaustiva requerida.";
+                logicaMedico += " Hipoglucemia espontánea/no farmacológica. Evaluación exhaustiva requerida.";
             }
 
             htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #ff9800; background-color: #fff9c4; border-radius: 5px;">
@@ -789,11 +855,44 @@
             
             htmlRecos += "<li><b>Cita:</b> Agende cita a corto plazo (1 semana) para verificar estabilidad.</li>";
         }
+        else if (sobretratado) {
+            // Sobrecontrol Crónico (HbA1c < 6.0%)
+            let recoDesescalar = "";
+            if (su !== '0') {
+                recoDesescalar = `<b>Reducir la dosis de Sulfonilurea a la mitad o suspenderla.</b> (Las sulfonilureas como la Glimepirida o Gliclazida son las que más bajan el azúcar).`;
+                logicaMedico += " Sobretratamiento detectado (HbA1c < 6.0%). Desescalonamiento priorizando el retiro de la Sulfonilurea (mayor riesgo de hipoglucemia nocturna).";
+            } else if (isglt2 !== '0') {
+                recoDesescalar = `<b>Suspender la Canagliflozina temporalmente</b> o reducir su dosis.`;
+                logicaMedico += " Sobretratamiento detectado. Retiro temporal de iSGLT2.";
+            } else if (met !== '0' && met !== '500x1' && met !== '850x1') {
+                let pasoAnterior = "Metformina 500mg u 850mg (1 vez al día)";
+                if (met === '1000x2') pasoAnterior = "Metformina 1000mg (1 vez al día) u 850mg (2 veces al día)";
+                else if (met.includes('x3')) pasoAnterior = "reducirla a 2 veces al día";
+                else if (met.includes('x2')) pasoAnterior = "reducirla a 1 vez al día";
+                
+                recoDesescalar = `<b>Reducir la dosis de Metformina al escalón anterior:</b> se recomienda pasar a ${pasoAnterior}.`;
+                logicaMedico += " Sobretratamiento detectado en terapia con Metformina. Se escala dosis un nivel hacia abajo.";
+            } else if (met === '500x1' || met === '850x1') {
+                recoDesescalar = `<b>Suspender la Metformina temporalmente</b>, el paciente puede mantenerse únicamente con dieta y ejercicio.`;
+                logicaMedico += " Sobretratamiento detectado. Suspensión de monoterapia a dosis mínima.";
+            } else {
+                recoDesescalar = `El paciente no reporta tomar medicamentos orales. Felicítelo por su excelente control estrictamente con dieta.`;
+                logicaMedico += " Excelente control metabólico no farmacológico.";
+            }
+
+            htmlRecos += `<li class="alerta-roja" style="font-size:1.1em; padding: 10px; border: 2px solid #ff9800; background-color: #fff9c4; border-radius: 5px; color: #856404;">
+            ⚠️ <strong>SOBRETRATAMIENTO DETECTADO:</strong><br><br>
+            El promedio de azúcar de los últimos 3 meses (HbA1c) está demasiado bajo para la seguridad a largo plazo del paciente. Es posible que se esté excediendo con el tratamiento.<br><br>
+            <strong>ACCIÓN RECOMENDADA:</strong><br>
+            ${recoDesescalar}</li>`;
+            
+            htmlRecos += "<li><b>Cita:</b> Agende cita a corto plazo (2 a 4 semanas) para vigilar síntomas de debilidad o mareos.</li>";
+        }
         else if (!malControlado) {
             htmlRecos += "<li><b>Consejería general:</b> Reforzar dieta y ejercicio 30 min/día (5 días a la semana).</li>";
             htmlRecos += "<li><b>Indicación Médica:</b> Mantener el esquema de medicamentos actual sin cambios. Felicite al paciente.</li>";
             htmlRecos += "<li><b>Cita:</b> Recuerde agendar cita en <b>1 a 3 meses</b>.</li>";
-            logicaMedico += " Paciente en control. Mantenimiento de esquema terapéutico sin modificaciones.";
+            logicaMedico += " Paciente en control metabólico. Mantenimiento de esquema terapéutico sin modificaciones.";
         } 
         else {
             htmlRecos += "<li><b>Consejería general:</b> Reforzar fuertemente dieta sin azúcares simples y ejercicio diario.</li>";
@@ -851,7 +950,7 @@
         }
 
         htmlRecos += "</ul>";
-        htmlRecos += generarModoMedico(logicaMedico, "Vía Clínica MSPAS/HEARTS, versión 2026. Algoritmo DM2.");
+        htmlRecos += generarModoMedico(logicaMedico, "Vía Clínica MSPAS/HEARTS, versión 2026. Criterios ADA.");
         contenido.innerHTML = htmlRecos;
     }
 </script>
