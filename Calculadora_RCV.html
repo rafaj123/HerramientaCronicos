@@ -34,6 +34,9 @@
         li { margin-bottom: 8px; }
         .footer-legal { margin-top: 30px; font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 15px; text-align: justify; line-height: 1.5; }
         .creditos { text-align: center; margin-top: 15px; font-weight: bold; color: #333; }
+        
+        .btn-retorno-hta { display: block; width: 100%; box-sizing: border-box; padding: 15px; background-color: #0056b3; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; text-align: center; font-size: 16px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background-color 0.3s; }
+        .btn-retorno-hta:hover { background-color: #004494; color: white; }
     </style>
 </head>
 <body>
@@ -197,7 +200,15 @@
 
             document.getElementById('valor-riesgo').innerText = textoRiesgo;
             document.getElementById('imc-calculado').innerHTML = imcTexto;
-            document.getElementById('mensaje-extra').innerHTML = recomendacion;
+            
+            const botonHTA = `
+            <div style="margin-top: 25px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 15px;">
+                <a href="Herramienta_HTA.html" class="btn-retorno-hta">
+                    🩺 Con este dato, continuar con Evaluación de HTA
+                </a>
+            </div>`;
+
+            document.getElementById('mensaje-extra').innerHTML = recomendacion + botonHTA;
         }
 
         function generarRecomendacion(riesgoNumerico, esSecundaria, tieneDM, tieneERC) {
