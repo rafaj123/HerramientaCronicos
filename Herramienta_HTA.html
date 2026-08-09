@@ -84,6 +84,25 @@
         <strong>No es un instrumento oficial del MSPAS, OPS/OMS ni de otra institución. No sustituye la normativa vigente, la valoración profesional ni los protocolos institucionales. En caso de discrepancia, prevalece siempre la normativa oficial vigente.</strong>
     </div>
 
+    <!-- SELECCIÓN DE DISTRITO -->
+    <div class="form-group" style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 5px solid #2196f3; margin-bottom: 20px;">
+        <label style="color: #0d47a1; margin-top: 0;">📍 Seleccione su Distrito de Salud (Fines estadísticos):</label>
+        <select id="selectDistrito" onchange="guardarDistrito()" style="border-color: #90caf9;">
+            <option value="No especificado">-- Seleccione su distrito --</option>
+            <option value="Santa Cruz del Quiché">Santa Cruz del Quiché</option>
+            <option value="Chichicastenango">Chichicastenango</option>
+            <option value="Zacualpa">Zacualpa</option>
+            <option value="Sacapulas">Sacapulas</option>
+            <option value="Joyabaj">Joyabaj</option>
+            <option value="Nebaj">Nebaj</option>
+            <option value="Uspantán">Uspantán</option>
+            <option value="Chajul">Chajul</option>
+            <option value="Cotzal">San Juan Cotzal</option>
+            <option value="Cunén">Cunén</option>
+            <option value="Otro Distrito">Otro / No aplica</option>
+        </select>
+    </div>
+
     <!-- CAJA DE EXCLUSIÓN -->
     <div class="exclusion-box">
         <strong>🚨 ¿Cuándo NO usar esta herramienta?</strong><br>
@@ -242,15 +261,26 @@
 
 <script>
     // --- TELEMETRÍA (TÚNEL DE DATOS) ---
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwa7w9o34g8pIvs1jyPY2h33XK6wfaLH0_Aas_M0BC0nmLcMRnWfVbSADkd1Fku4pML8A/exec";
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxXLIRhczbpUa_Ex_dK6GQKG0bBRy6nLk07BnQceW8MjoiFz2zSOi8dhMbojl0SEurGMQ/exec";
     
+    // Funciones de memoria para no pedir el distrito cada vez
+    window.onload = function() {
+        let guardado = localStorage.getItem('hearts_distrito');
+        if(guardado) { document.getElementById('selectDistrito').value = guardado; }
+    };
+
+    function guardarDistrito() {
+        localStorage.setItem('hearts_distrito', document.getElementById('selectDistrito').value);
+    }
+
     function enviarEstadistica(modulo, categoria, detalle) {
+        let distritoActual = document.getElementById('selectDistrito') ? document.getElementById('selectDistrito').value : "No especificado";
         try {
             fetch(WEBHOOK_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ modulo: modulo, categoria: categoria, detalle: detalle })
+                body: JSON.stringify({ distrito: distritoActual, modulo: modulo, categoria: categoria, detalle: detalle })
             });
         } catch (e) {
             console.log("Telemetría off");
