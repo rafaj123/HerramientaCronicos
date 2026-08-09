@@ -33,7 +33,7 @@
         .btn { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; width: 100%; font-weight: bold; }
         .btn:hover { background-color: #0056b3; }
         label { display: block; margin-top: 10px; font-weight: bold; }
-        input[type="number"], select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input[type="number"], select, input[type="text"] { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 5px; }
         .checkbox-group-col { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
         .checkbox-item { display: flex; align-items: center; background: #eee; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 14px;}
@@ -84,23 +84,10 @@
         <strong>No es un instrumento oficial del MSPAS, OPS/OMS ni de otra institución. No sustituye la normativa vigente, la valoración profesional ni los protocolos institucionales. En caso de discrepancia, prevalece siempre la normativa oficial vigente.</strong>
     </div>
 
-    <!-- SELECCIÓN DE DISTRITO -->
+    <!-- SELECCIÓN DE DISTRITO (Texto Libre) -->
     <div class="form-group" style="background-color: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 5px solid #2196f3; margin-bottom: 20px;">
-        <label style="color: #0d47a1; margin-top: 0;">📍 Seleccione su Distrito de Salud (Fines estadísticos):</label>
-        <select id="selectDistrito" onchange="guardarDistrito()" style="border-color: #90caf9;">
-            <option value="No especificado">-- Seleccione su distrito --</option>
-            <option value="Santa Cruz del Quiché">Santa Cruz del Quiché</option>
-            <option value="Chichicastenango">Chichicastenango</option>
-            <option value="Zacualpa">Zacualpa</option>
-            <option value="Sacapulas">Sacapulas</option>
-            <option value="Joyabaj">Joyabaj</option>
-            <option value="Nebaj">Nebaj</option>
-            <option value="Uspantán">Uspantán</option>
-            <option value="Chajul">Chajul</option>
-            <option value="Cotzal">San Juan Cotzal</option>
-            <option value="Cunén">Cunén</option>
-            <option value="Otro Distrito">Otro / No aplica</option>
-        </select>
+        <label style="color: #0d47a1; margin-top: 0;">📍 Escriba su Distrito o Área de Salud (Fines estadísticos):</label>
+        <input type="text" id="inputDistrito" placeholder="Ej. Santa Cruz del Quiché, Panajachel, etc." oninput="guardarDistrito()" style="border-color: #90caf9;">
     </div>
 
     <!-- CAJA DE EXCLUSIÓN -->
@@ -266,15 +253,16 @@
     // Funciones de memoria para no pedir el distrito cada vez
     window.onload = function() {
         let guardado = localStorage.getItem('hearts_distrito');
-        if(guardado) { document.getElementById('selectDistrito').value = guardado; }
+        if(guardado) { document.getElementById('inputDistrito').value = guardado; }
     };
 
     function guardarDistrito() {
-        localStorage.setItem('hearts_distrito', document.getElementById('selectDistrito').value);
+        localStorage.setItem('hearts_distrito', document.getElementById('inputDistrito').value);
     }
 
     function enviarEstadistica(modulo, categoria, detalle) {
-        let distritoActual = document.getElementById('selectDistrito') ? document.getElementById('selectDistrito').value : "No especificado";
+        let inputEl = document.getElementById('inputDistrito');
+        let distritoActual = (inputEl && inputEl.value.trim() !== "") ? inputEl.value.trim() : "No especificado";
         try {
             fetch(WEBHOOK_URL, {
                 method: 'POST',
@@ -527,7 +515,7 @@
             if (tieneAlarmas) {
                 tipoEmergencia = "EMERGENCIA HIPERTENSIVA (Daño agudo a Órgano Blanco detectado por los síntomas marcados).";
             } else if (esCrisisHTA) {
-                tipoEmergencia = "URGENCIA HIPERTENSIVA (PA ≥180/120 sin síntomas aparentes).";
+                tipoEmergencia = "URGENCIA HIPERTENSIVA (PA ≥180/120 without síntomas aparentes).";
             }
 
             recomendacion = `<div class="alert-box" style="padding:15px; margin-bottom:20px; border-radius:5px; border-left: 5px solid #721c24;">
