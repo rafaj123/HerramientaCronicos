@@ -150,7 +150,7 @@
                 <input type="checkbox" id="chkAntAyunas" onchange="toggleInputAnt('Ayunas')"> <b>Ayunas</b> (De 8 a 14 horas de no comer)
             </div>
             <div id="cajaAntAyunas" class="ant-input-box" style="display:none;">
-                <input type="number" id="valAntAyunas" placeholder="Valor numérico en ayunas" step="0.1">
+                <input type="number" id="valAntAyunas" placeholder="Ej. 110 (mg/dL)" step="0.1">
             </div>
 
             <!-- AZAR ANT -->
@@ -158,7 +158,7 @@
                 <input type="checkbox" id="chkAntAzar" onchange="toggleInputAnt('Azar')"> <b>Al azar</b> (Comió hace menos de 8 horas o no sabe)
             </div>
             <div id="cajaAntAzar" class="ant-input-box" style="display:none;">
-                <input type="number" id="valAntAzar" placeholder="Valor numérico al azar" step="0.1" style="margin-bottom: 10px;">
+                <input type="number" id="valAntAzar" placeholder="Ej. 180 (mg/dL)" step="0.1" style="margin-bottom: 10px;">
                 <select id="sintAntAzar">
                     <option value="no">Sin síntomas clásicos en esa consulta</option>
                     <option value="si">Sí presentaba síntomas (mucha sed, orina, hambre)</option>
@@ -170,7 +170,7 @@
                 <input type="checkbox" id="chkAntPos" onchange="toggleInputAnt('Pos')"> <b>PTOG:</b> Glucosa plasmática 2 hrs después de carga oral de 75g <i>(Solo hecha en laboratorio)</i>
             </div>
             <div id="cajaAntPos" class="ant-input-box" style="display:none;">
-                <input type="number" id="valAntPos" placeholder="Valor numérico PTOG (2 horas)" step="0.1">
+                <input type="number" id="valAntPos" placeholder="Ej. 150 (mg/dL)" step="0.1">
             </div>
 
             <!-- HbA1c ANT -->
@@ -178,7 +178,7 @@
                 <input type="checkbox" id="chkAntHb" onchange="toggleInputAnt('Hb')"> <b>Hemoglobina Glucosilada</b> (HbA1c)
             </div>
             <div id="cajaAntHb" class="ant-input-box" style="display:none;">
-                <input type="number" id="valAntHb" placeholder="Valor numérico de HbA1c (%)" step="0.1">
+                <input type="number" id="valAntHb" placeholder="Ej. 6.5%" step="0.1">
             </div>
         </div>
 
@@ -199,7 +199,7 @@
         </div>
 
         <div class="form-group">
-            <label>4. ¿Cuál es el resultado numérico actual?</label>
+            <label id="labelValorGlucosaDx">4. ¿Cuál es el resultado numérico actual? (mg/dL)</label>
             <input type="number" id="valorGlucosaDx" placeholder="Ej. 145" step="0.1">
         </div>
 
@@ -248,7 +248,7 @@
         </div>
 
         <div class="form-group">
-            <label>B. Valor de glucosa actual:</label>
+            <label id="labelValorGlucosaTx">B. Valor de glucosa actual (mg/dL):</label>
             <input type="number" id="valorGlucosaTx" placeholder="Ej. 165" step="0.1">
         </div>
 
@@ -363,6 +363,16 @@
     function toggleSintomasActual() {
         let tipo = document.getElementById('tipoGlucosaDx').value;
         document.getElementById('cajaSintomasActual').style.display = (tipo === 'azar') ? 'block' : 'none';
+        
+        let labelValor = document.getElementById('labelValorGlucosaDx');
+        let inputValor = document.getElementById('valorGlucosaDx');
+        if(tipo === 'hba1c') {
+            labelValor.innerText = "4. Valor de la hemoglobina glucosilada actual:";
+            inputValor.placeholder = "Ej. 6.5%";
+        } else {
+            labelValor.innerText = "4. ¿Cuál es el resultado numérico actual? (mg/dL):";
+            inputValor.placeholder = "Ej. 145";
+        }
     }
 
     function togglePruebaAnterior() {
@@ -377,10 +387,22 @@
 
     function toggleMetasHbA1c() {
         let tipoTx = document.getElementById('tipoGlucosaTx').value;
-        if(tipoTx === 'hba1c' && document.getElementById('tieneDiagnostico').value === 'si') {
+        let tieneDx = document.getElementById('tieneDiagnostico').value;
+        
+        if(tipoTx === 'hba1c' && tieneDx === 'si') {
             document.getElementById('cajaMetasHbA1c').style.display = 'block';
         } else {
             document.getElementById('cajaMetasHbA1c').style.display = 'none';
+        }
+        
+        let labelValor = document.getElementById('labelValorGlucosaTx');
+        let inputValor = document.getElementById('valorGlucosaTx');
+        if(tipoTx === 'hba1c') {
+            labelValor.innerText = "B. Valor de la hemoglobina glucosilada actual:";
+            inputValor.placeholder = "Ej. 6.5%";
+        } else {
+            labelValor.innerText = "B. Valor de glucosa actual (mg/dL):";
+            inputValor.placeholder = "Ej. 165";
         }
     }
 
@@ -469,7 +491,7 @@
         let valorAct = parseFloat(document.getElementById('valorGlucosaDx').value);
         let sintAct = document.getElementById('sintomasDx').value;
         
-        if(!valorAct) { alert("Ingrese el valor numérico de la glucosa actual."); return; }
+        if(!valorAct) { alert("Ingrese el valor numérico actual."); return; }
         
         let estAct = obtenerEstadoDx(tipoAct, valorAct, sintAct);
         let msj = "";
@@ -588,7 +610,7 @@
         let tipoTx = (tipo === 'azar' || tipo === 'posprandial') ? 'azar' : tipo;
         document.getElementById('tipoGlucosaTx').value = tipoTx;
         document.getElementById('valorGlucosaTx').value = valor;
-        toggleMetasHbA1c(); // Validar si necesita mostrar la caja
+        toggleMetasHbA1c();
         document.getElementById('resultado-box').style.display = 'none';
         window.scrollTo(0, 0);
     }
@@ -622,7 +644,7 @@
         let valor = parseFloat(document.getElementById('valorGlucosaTx').value);
         let met = document.getElementById('txMetformina').value;
         
-        if(!valor) { alert("Ingrese el valor numérico de la glucosa actual."); return; }
+        if(!valor) { alert("Ingrese el valor numérico actual."); return; }
 
         let box = document.getElementById('resultado-box');
         let banner = document.getElementById('estado-control-banner');
@@ -831,10 +853,10 @@
             let recoBaja = "";
             if (su !== '0') {
                 recoBaja = `<b>SUSPENDA la Sulfonilurea</b> (Glimepirida o Gliclazida). Las sulfonilureas son la causa farmacológica principal de hipoglucemias severas. Mantenga la Metformina en su dosis actual.`;
-                logicaMedico = "Hipoglucemia inducida por Sulfonilurea. Suspensión de secretagogo.";
+                logicaMedico += " Hipoglucemia inducida por Sulfonilurea. Suspensión de secretagogo.";
             } else if (isglt2 !== '0') {
                 recoBaja = `<b>SUSPENDA el iSGLT2</b> (Canagliflozina) temporalmente y evalúe otras causas concurrentes.`;
-                logicaMedico = "Hipoglucemia detectada. Suspensión de iSGLT2.";
+                logicaMedico += " Hipoglucemia detectada. Suspensión de iSGLT2.";
             } else if (met !== '0') {
                 recoBaja = `<b>Tratar hipoglucemia según protocolo, confirmar el resultado si es posible y buscar la causa.</b><br><br>
                 <span style="color:#d32f2f;"><b>La metformina por sí sola rara vez produce hipoglucemia. NO SUSPENDER automáticamente sin valorar el contexto clínico.</b></span><br>
