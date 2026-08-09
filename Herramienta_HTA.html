@@ -241,6 +241,22 @@
 </div>
 
 <script>
+    // --- TELEMETRÍA (TÚNEL DE DATOS) ---
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwa7w9o34g8pIvs1jyPY2h33XK6wfaLH0_Aas_M0BC0nmLcMRnWfVbSADkd1Fku4pML8A/exec";
+    
+    function enviarEstadistica(modulo, categoria, detalle) {
+        try {
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ modulo: modulo, categoria: categoria, detalle: detalle })
+            });
+        } catch (e) {
+            console.log("Telemetría off");
+        }
+    }
+
     // Configuración UI
     function toggleTomas() {
         const num = document.getElementById('numTomas').value;
@@ -476,6 +492,7 @@
         const tieneAlarmas = Array.from(document.querySelectorAll('.chk-alarma:checked')).length > 0;
         
         if (tieneAlarmas || esCrisisHTA) {
+            enviarEstadistica("HTA", "Alerta", "Emergencia/Urgencia detectada");
             let tipoEmergencia = "";
             if (tieneAlarmas) {
                 tipoEmergencia = "EMERGENCIA HIPERTENSIVA (Daño agudo a Órgano Blanco detectado por los síntomas marcados).";
@@ -506,6 +523,7 @@
         let takesEnal = actuales.some(m => m.includes("Enalapril"));
         
         if (takesIrbe && takesEnal) {
+             enviarEstadistica("HTA", "Alerta", "Error prescripción IECA+ARA-II");
              resBox.innerHTML = `<div class="alert-box" style="padding:15px; border-radius:5px;">
                 <h3 style="color:#721c24; margin-top:0;">🚨 ERROR DE PRESCRIPCIÓN</h3>
                 Ha marcado que el paciente toma Enalapril e Irbesartán al mismo tiempo. Estos medicamentos pertenecen a clases que <b>NUNCA DEBEN COMBINARSE</b> debido al alto riesgo de daño renal severo e hiperpotasemia.<br><br>
@@ -533,6 +551,7 @@
 
         // 2. LÓGICA DE DESESCALONAMIENTO (HIPOTENSIÓN)
         if (gradoHTA === "BAJA") {
+            enviarEstadistica("HTA", "Tratamiento", "Desescalonamiento por hipotensión");
             let warnHipo = `<div class="hipo-box" style="padding:15px; margin-bottom:15px; border-radius:5px;">
                 <strong>⚠️ PRESIÓN ARTERIAL BAJA</strong><br><br>
                 Busque síntomas de alarma como mareo al levantarse, náuseas, visión borrosa o palpitaciones.
@@ -570,6 +589,7 @@
         } 
         // 3. PACIENTE EN META
         else if (enMeta) {
+            enviarEstadistica("HTA", "Control", "En metas");
             recomendacion = "<strong>✅ PACIENTE EN METAS</strong><br><br>";
             accionParaModoMedico = "Mantener esquema actual.";
             
@@ -585,6 +605,7 @@
         // 4. PACIENTE FUERA DE META
         else {
             if (gradoHTA === "NORMAL" || gradoHTA === "ELEVADA") {
+                enviarEstadistica("HTA", "Control", "No HTA (Estilo de vida)");
                 recomendacion = "Priorice cambios en el estilo de vida. Reevaluar periódicamente.";
                 accionParaModoMedico = "Manejo no farmacológico (PA no cumple criterios de HTA).";
             } else {
@@ -592,6 +613,7 @@
                 if (pacienteConocido === 'NO') {
                     let opciones = [];
                     if (gradoHTA === "HTA1") {
+                        enviarEstadistica("HTA", "Tratamiento", "Escalón 1 (Paciente Nuevo)");
                         recomendacion = "<strong>Tratamiento Inicial (Paso 1 - Monoterapia a dosis inicial):</strong><br><br>";
                         let i = getDosis("Irbersartan", inv, 1), e = getDosis("Enalapril", inv, 1);
                         let a = getDosis("Amlodipino", inv, 1), h = getDosis("Hidroclorotiazida", inv, 1);
@@ -603,6 +625,7 @@
                         if (h) { opciones.push(`<div class="opcion-escalon"><strong>Opción ${optCount}:</strong> ${h} al día.</div>`); optCount++; }
                         accionParaModoMedico = "Inicio de tratamiento farmacológico escalón 1 (Monoterapia).";
                     } else if (gradoHTA === "HTA2") {
+                        enviarEstadistica("HTA", "Tratamiento", "Escalón 3 (Terapia Dual Inicial)");
                         recomendacion = "<strong>Tratamiento Inicial (Paso 3 - Terapia Dual a dosis media):</strong><br><br>";
                         let i = getDosis("Irbersartan", inv, 1), e = getDosis("Enalapril", inv, 1);
                         let a = getDosis("Amlodipino", inv, 1), h = getDosis("Hidroclorotiazida", inv, 1);
@@ -625,6 +648,7 @@
                 else {
                     // a) Checklist Fallido (Inercia o falta de técnica)
                     if (!checklistCompleto && numMeds > 0) {
+                        enviarEstadistica("HTA", "Seguridad", "Checklist Incompleto - Escalado Detenido");
                         recomendacion += `<div class="warning-box" style="padding:15px; border-radius:5px; margin-bottom:15px;">
                             <strong>⚠️ ESCALONAMIENTO DETENIDO (Checklist Incompleto):</strong><br><br>
                             Usted indicó que el paciente no cumple con todas las condiciones de seguridad (adherencia, técnica o medicamentos que elevan la PA). <b>Aumentar la dosis ahora es peligroso</b> y puede causar caídas de presión severas en el futuro.<br><br>
@@ -664,6 +688,8 @@
                         } 
                         else if (numMeds === 1) {
                             let isMax = isIrbeMax || isEnalMax || isAmloMax || isHctzMax;
+                            enviarEstadistica("HTA", "Tratamiento", isMax ? "Escalón 3" : "Escalón 2");
+                            
                             if (!isMax) {
                                 htmlOpciones += "<div style='background-color:#e2e3e5; padding:10px; border-radius:4px;'><strong>Escalón 2 (Maximizar monoterapia actual):</strong><br><em>Aumente el medicamento actual a su dosis máxima.</em></div>";
                                 let optCount = 1;
@@ -695,6 +721,8 @@
                             if (takesEnal && !isEnalMax) bothMax = false;
                             if (takesAmlo && !isAmloMax) bothMax = false;
                             if (takesHctz && !isHctzMax) bothMax = false;
+
+                            enviarEstadistica("HTA", "Tratamiento", bothMax ? "Terapia Triple" : "Escalón 4");
 
                             if (!bothMax) {
                                 htmlOpciones += "<div style='background-color:#e2e3e5; padding:10px; border-radius:4px;'><strong>Escalón 4 (Dos medicamentos a dosis completa):</strong><br><em>El paciente toma combinación a dosis media y sigue fuera de metas. Maximizar ambas dosis.</em></div>";
@@ -743,6 +771,8 @@
                             if (takesEnal && !isEnalMax) allMaxed = false;
                             if (takesAmlo && !isAmloMax) allMaxed = false;
                             if (takesHctz && !isHctzMax) allMaxed = false;
+
+                            enviarEstadistica("HTA", "Tratamiento", allMaxed ? "HTA Resistente" : "Maximizar Triple");
 
                             if (!allMaxed) {
                                 htmlOpciones += "<div style='background-color:#e2e3e5; padding:10px; border-radius:4px;'><strong>Maximizar Terapia Triple:</strong><br><em>El paciente toma 3 medicamentos pero NO están a dosis tope. Para declarar hipertensión resistente, primero debe maximizar la dosis actual tolerada.</em></div>";
@@ -794,6 +824,7 @@
         let tomaEnalapril = actuales.find(m => m.includes("Enalapril"));
         if (tos && tomaEnalapril) {
             hasAdv = true;
+            enviarEstadistica("HTA", "Efecto Adverso", "Tos por IECA");
             let dosisIrbesartan = tomaEnalapril.includes("10mg") ? "Irbesartán 150 mg (1 tableta)" : "Irbesartán 300 mg (2 tabletas de 150mg)";
             text += `<div style="background-color: #fce4ec; border-left: 5px solid #e91e63; padding: 12px; margin-top: 10px; border-radius: 4px; color:#880e4f;">
                 <b>Efecto Adverso (Tos persistente):</b> El paciente presenta intolerancia a Enalapril. <br>
@@ -804,6 +835,7 @@
         let tomaAmlodipino = actuales.find(m => m.includes("Amlodipino"));
         if (edema && tomaAmlodipino) {
             hasAdv = true;
+            enviarEstadistica("HTA", "Efecto Adverso", "Edema por Amlodipino");
             text += `<div style="background-color: #e8eaf6; border-left: 5px solid #3f51b5; padding: 12px; margin-top: 10px; border-radius: 4px; color:#1a237e;">
                 <b>Efecto Adverso (Tobillos hinchados):</b> El Amlodipino es la causa más probable de los tobillos hinchados. <br>
                 Si la hinchazón es muy molesta, <b>SUSPENDA el ${tomaAmlodipino}</b> y sustitúyalo por <b>Hidroclorotiazida 12.5 mg</b>, o refiera al médico.
