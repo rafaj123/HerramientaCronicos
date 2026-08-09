@@ -26,6 +26,8 @@
         ul { margin-top: 5px; padding-left: 20px; }
         .meta-text { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
         .sub-box { background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 6px; margin-top: 15px; border-left: 4px solid #007bff; }
+        .btn-link { display: inline-block; margin-top: 5px; padding: 10px 15px; background-color: #17a2b8; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background-color 0.3s; }
+        .btn-link:hover { background-color: #138496; }
     </style>
 </head>
 <body>
@@ -84,6 +86,13 @@
     <!-- SECCIÓN 4: Riesgo Cardiovascular (RCV) -->
     <div class="section-card hidden" id="seccionRCV">
         <h2>4. Riesgo Cardiovascular (RCV) y Metas</h2>
+        
+        <div style="margin-bottom: 20px; background-color: #e9ecef; padding: 15px; border-radius: 6px; border-left: 4px solid #17a2b8;">
+            <label style="margin-top: 0; color: #0c5460;">¿Aún no conoce el Riesgo Cardiovascular del paciente?</label>
+            <a href="Calculadora_RCV.html" target="_blank" class="btn-link">📊 Si no ha usado la calculadora, haga clic acá</a>
+            <div style="font-size: 13px; color: #666; margin-top: 8px;"><em>(La calculadora se abrirá en una pestaña nueva para no perder los datos que ya ingresó aquí).</em></div>
+        </div>
+
         <label>Marque cuál es el riesgo cardiovascular calculado según la herramienta 1 (Calculadora de riesgo):</label>
         <select id="riesgoCV" onchange="evaluarMetas()">
             <option value="" disabled selected>Seleccione una opción...</option>
