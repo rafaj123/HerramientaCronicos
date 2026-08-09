@@ -161,6 +161,22 @@
 </div>
 
     <script>
+        // --- TELEMETRÍA (TÚNEL DE DATOS) ---
+        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwa7w9o34g8pIvs1jyPY2h33XK6wfaLH0_Aas_M0BC0nmLcMRnWfVbSADkd1Fku4pML8A/exec";
+        
+        function enviarEstadistica(modulo, categoria, detalle) {
+            try {
+                fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ modulo: modulo, categoria: categoria, detalle: detalle })
+                });
+            } catch (e) {
+                console.log("Telemetría off");
+            }
+        }
+
         const matrizRiesgo = {
             "hombre_si_40-44": [[2,2,3,3,4], [3,3,4,5,6], [4,5,6,7,8], [5,7,8,10,12], [8,9,11,13,16]],
             "hombre_si_45-49": [[3,3,4,4,5], [4,4,5,6,7], [5,6,7,8,10], [7,8,10,11,14], [9,11,13,15,18]],
@@ -263,7 +279,6 @@
             const erc = document.getElementById('erc').value === 'si';
             const dm = document.getElementById('dm').value === 'si';
 
-            // PUNTO DEL AUDITOR: Conservar la clasificación de Riesgo Alto/Crítico, pero aclarar la fuente de cálculo
             if (eventoCv || erc || dm) {
                 let nivelRiesgo = eventoCv ? "Crítico (≥30%)" : "Alto (10% a <20%)";
                 let colorFondo = eventoCv ? "#900c3f" : "#ff9800";
@@ -279,6 +294,7 @@
                     <strong>Fuente:</strong> Vía Clínica MSPAS/Guatemala, versión 2026. Pacientes con DM, ERC o Evento CV previo ingresan directamente a este estrato de riesgo.
                 </div>`;
 
+                enviarEstadistica("RCV", "Cálculo de Riesgo", eventoCv ? "Riesgo Crítico Clínico (Evento CV previo)" : "Alto Riesgo Clínico (Por DM/ERC)");
                 mostrarCajaResultado(`Riesgo Estimado: ${nivelRiesgo}`, colorFondo, "", mensaje + rec + justificacion);
                 return;
             }
@@ -297,6 +313,7 @@
 
             // Límite de Validez de Edad (40-74)
             if (edad < 40 || edad > 74) {
+                enviarEstadistica("RCV", "Alerta", "Edad no validada");
                 let mensaje = `<div style='background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; border-radius: 5px; text-align: left;'>
                     <strong>Esta tabla de riesgo no está validada para esta edad. No se puede calcular el RCV mediante esta herramienta.</strong><br><br>
                     El tamizaje estándar (hipertensión, peso, etc.) aplica, pero el porcentaje de riesgo a 10 años no puede ser extrapolado matemáticamente. Utilice el juicio clínico.
@@ -351,23 +368,31 @@
                 
                 let colorFondo = "";
                 let textoDescriptivo = "";
+                let detalleEstadistica = "";
                 
                 if (riesgoFinal < 5) {
                     colorFondo = "#8bc34a"; // Verde
                     textoDescriptivo = `Bajo (<5%)`;
+                    detalleEstadistica = "Riesgo Bajo (Por Tabla)";
                 } else if (riesgoFinal >= 5 && riesgoFinal < 10) {
                     colorFondo = "#ffeb3b"; // Amarillo
                     textoDescriptivo = `Moderado (5% a <10%)`;
+                    detalleEstadistica = "Riesgo Moderado (Por Tabla)";
                 } else if (riesgoFinal >= 10 && riesgoFinal < 20) {
                     colorFondo = "#ff9800"; // Naranja
                     textoDescriptivo = `Alto (10% a <20%)`;
+                    detalleEstadistica = "Riesgo Alto (Por Tabla)";
                 } else if (riesgoFinal >= 20 && riesgoFinal < 30) {
                     colorFondo = "#f44336"; // Rojo
                     textoDescriptivo = `Muy Alto (20% a <30%)`;
+                    detalleEstadistica = "Riesgo Muy Alto (Por Tabla)";
                 } else {
                     colorFondo = "#900c3f"; // Corinto
                     textoDescriptivo = `Crítico (≥30%)`;
+                    detalleEstadistica = "Riesgo Crítico (Por Tabla)";
                 }
+
+                enviarEstadistica("RCV", "Cálculo de Riesgo", detalleEstadistica);
 
                 const rec = generarRecomendacion(riesgoFinal, false, false, false);
                 
