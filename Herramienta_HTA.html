@@ -7,16 +7,26 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1, h2, h3 { color: #2c3e50; }
+        h1, h2, h3 { color: #2c3e50; text-align: center; }
+        
+        /* BARRA DE NAVEGACIÓN (Suite Médica) */
+        .nav-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; justify-content: center; background-color: #e9ecef; padding: 15px; border-radius: 8px; }
+        .nav-btn { text-decoration: none; padding: 12px 15px; border-radius: 6px; font-weight: bold; color: #fff; text-align: center; flex: 1; min-width: 140px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 14px; }
+        .nav-btn:hover { opacity: 0.85; transform: translateY(-2px); }
+        .btn-rcv { background-color: #e91e63; }
+        .btn-dm { background-color: #f44336; }
+        .btn-hta { background-color: #0056b3; border: 2px solid #002752; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); pointer-events: none; } /* Activo */
+        .btn-req { background-color: #ff9800; }
+
         .disclaimer { background-color: #fff3cd; color: #856404; padding: 15px; border-left: 5px solid #ffeeba; margin-bottom: 20px; font-size: 0.9em; }
         .section-card { border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background-color: #fafafa; }
         .btn { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; width: 100%; font-weight: bold; }
         .btn:hover { background-color: #0056b3; }
         label { display: block; margin-top: 10px; font-weight: bold; }
-        input[type="number"], select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input[type="number"], select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 15px; }
         .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 5px; }
         .checkbox-group-col { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
-        .checkbox-item { display: flex; align-items: center; background: #eee; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .checkbox-item { display: flex; align-items: center; background: #eee; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 14px; }
         .checkbox-item input { margin-right: 8px; transform: scale(1.2); }
         .hidden { display: none; }
         .result-box { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border-left: 5px solid #c3e6cb; margin-top: 20px; font-size: 1.1em; }
@@ -33,7 +43,16 @@
 <body>
 
 <div class="container">
-    <h1>Herramienta de Apoyo para Tratamiento de HTA en Primer Nivel</h1>
+    
+    <!-- MENÚ DE NAVEGACIÓN -->
+    <div class="nav-bar">
+        <a href="Calculadora_RCV.html" class="nav-btn btn-rcv">🫀 Riesgo CV</a>
+        <a href="Herramienta_DM2.html" class="nav-btn btn-dm">🩸 Diabetes</a>
+        <a href="Herramienta_HTA.html" class="nav-btn btn-hta">🩺 Hipertensión</a>
+        <a href="Herramienta_Requisicion.html" class="nav-btn btn-req">📦 Requisición</a>
+    </div>
+
+    <h1>Apoyo para Tratamiento de HTA</h1>
     <div class="disclaimer">
         <strong>⚠️ DESCARGO DE RESPONSABILIDAD:</strong> Esta es una herramienta de apoyo al cálculo logístico y educativo. No es un documento oficial y NO pretende sustituir el juicio clínico ni las normativas vigentes. Úsese con precaución. Si un paciente presenta signos de alarma, refiera inmediatamente al nivel correspondiente.
     </div>
