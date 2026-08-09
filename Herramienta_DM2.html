@@ -643,8 +643,16 @@
                     htmlRecos += `<li><b>Indicación Médica:</b> Continúe con la dosis actual de Metformina.</li>`;
                     logicaMedico = "Mantenimiento de dosis de metformina en prediabetes persistente.";
                 } else {
-                    htmlRecos += `<li><b>Indicación Médica:</b> Mantenga vigilancia. <i>Considere iniciar Metformina si cumple criterios de alto riesgo (obesidad, edad <60, etc.).</i></li>`;
-                    logicaMedico = "Vigilancia de prediabetes sin intensificación automática.";
+                    htmlRecos += `<li><b>Indicación Médica:</b> Mantenga vigilancia. Usted puede <b>CONSIDERAR</b> iniciar Metformina si el paciente cumple con alguno de estos criterios: 
+                    <ul>
+                        <li>Tiene mucha obesidad (IMC mayor a 35).</li>
+                        <li>Es menor de 60 años.</li>
+                        <li>Tuvo diabetes durante un embarazo.</li>
+                        <li>Padece Síndrome de Ovario Poliquístico.</li>
+                        <li>Su glucosa en ayunas o HbA1c están muy cerca del límite diabético.</li>
+                    </ul>
+                    <i>⚠️ Recuerde: Dar la pastilla NO es obligatorio en esta etapa. El tratamiento principal y más importante para la prediabetes es la dieta y el ejercicio.</i></li>`;
+                    logicaMedico = "Vigilancia de prediabetes. Opción de inicio de metformina profiláctica según criterios ADA explícitos.";
                 }
                 htmlRecos += `<li><b>Consejería general:</b> Refuerce plan de dieta y ejercicio. Cita en 3 meses.</li>`;
 
