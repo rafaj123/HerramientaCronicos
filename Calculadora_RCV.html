@@ -154,7 +154,7 @@
         <input type="number" id="pas" class="var-estandar" placeholder="Ej. 145">
     </div>
 
-    <button onclick="calcularRCV()">Calcular Riesgo</button>
+    <button id="btnCalcularRCV" onclick="calcularRCV()">Calcular Riesgo</button>
     <button class="btn-reset" onclick="reiniciar()">Nueva Consulta</button>
 
     <!-- RESULTADO -->
@@ -266,7 +266,10 @@
                 </a>
             </div>`;
 
-            document.getElementById('mensaje-extra').innerHTML = recomendacion + botonHTA;
+            // --- INYECCIÓN DEL BOTÓN DE NUEVA CONSULTA ---
+            const btnNueva = `<button onclick="location.reload()" style="background-color: #ff9800; color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-size: 16px; font-weight: bold; margin-top: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">🔄 PRESIONE PARA UNA NUEVA CONSULTA</button>`;
+
+            document.getElementById('mensaje-extra').innerHTML = recomendacion + botonHTA + btnNueva;
         }
 
         function generarRecomendacion(riesgoNumerico, esSecundaria, tieneDM, tieneERC) {
@@ -298,6 +301,15 @@
             const dm = document.getElementById('dm').value === 'si';
 
             if (eventoCv || erc || dm) {
+                // --- INICIO DE BLOQUEO DE BOTÓN ---
+                let btnRcv = document.getElementById("btnCalcularRCV");
+                btnRcv.disabled = true;
+                btnRcv.style.backgroundColor = "#cccccc";
+                btnRcv.style.color = "#666666";
+                btnRcv.style.cursor = "not-allowed";
+                btnRcv.innerText = "Calculado. Vea el resultado abajo.";
+                // --- FIN DE BLOQUEO ---
+
                 let nivelRiesgo = eventoCv ? "Crítico (≥30%)" : "Alto (10% a <20%)";
                 let colorFondo = eventoCv ? "#900c3f" : "#ff9800";
                 let condicion = eventoCv ? "evento cardiovascular previo" : (dm ? "diabetes mellitus" : "enfermedad renal crónica");
@@ -328,6 +340,15 @@
                 alert("Por favor llene todos los campos numéricos.");
                 return;
             }
+
+            // --- INICIO DE BLOQUEO DE BOTÓN ---
+            let btnRcv = document.getElementById("btnCalcularRCV");
+            btnRcv.disabled = true;
+            btnRcv.style.backgroundColor = "#cccccc";
+            btnRcv.style.color = "#666666";
+            btnRcv.style.cursor = "not-allowed";
+            btnRcv.innerText = "Calculado. Vea el resultado abajo.";
+            // --- FIN DE BLOQUEO ---
 
             // Límite de Validez de Edad (40-74)
             if (edad < 40 || edad > 74) {
@@ -425,19 +446,7 @@
         }
 
         function reiniciar() {
-            document.getElementById('eventoCv').value = 'no';
-            document.getElementById('erc').value = 'no';
-            document.getElementById('dm').value = 'no';
-            
-            document.getElementById('edad').value = '';
-            document.getElementById('peso').value = '';
-            document.getElementById('talla').value = '';
-            document.getElementById('pas').value = '';
-            
-            verificarBloqueos();
-            
-            document.getElementById('resultado-box').style.display = 'none';
-            window.scrollTo(0, 0);
+            location.reload();
         }
     </script>
 </body>
