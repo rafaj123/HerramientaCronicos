@@ -483,6 +483,20 @@
         return null;
     }
 
+    function getDosisAguda(inv) {
+        let sraa = inv.includes("Irbersartan 150mg") ? "Irbesartán 150mg" : (inv.includes("Enalapril 20mg") ? "Enalapril 20mg" : null);
+        let amlo = inv.includes("Amlodipino 5mg") ? "Amlodipino 5mg" : null;
+        let hctz = inv.includes("Hidroclorotiazida 25mg") ? "Hidroclorotiazida 25mg" : (inv.includes("Hidroclorotiazida 50mg") ? "Hidroclorotiazida 50mg" : null);
+
+        if (sraa && amlo) return `Media tableta de ${sraa} <b>MÁS</b> media tableta de ${amlo}`;
+        if (sraa && hctz) return `Media tableta de ${sraa} <b>MÁS</b> media tableta de ${hctz}`;
+        if (amlo && hctz) return `Media tableta de ${amlo} <b>MÁS</b> media tableta de ${hctz}`;
+        if (sraa) return `1 tableta completa de ${sraa}`;
+        if (amlo) return `1 tableta completa de ${amlo}`;
+        if (hctz) return `1 tableta completa de ${hctz}`;
+        return null;
+    }
+
     function generarModoMedico(accionText) {
         return `
         <details style="margin-top: 20px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
@@ -536,6 +550,35 @@
             return;
         }
 
+        // INYECTAR AVISO DE URGENCIA HIPERTENSIVA (MARCADAMENTE ELEVADA ASINTOMÁTICA)
+        if (esCrisisHTA && !tieneAlarmas) {
+            enviarEstadistica("HTA", "Alerta", "PA Marcadamente Elevada Asintomática");
+            
+            let dosisAguda = getDosisAguda(inv);
+            let accionDosis = "";
+            
+            if (dosisAguda) {
+                accionDosis = `<li>Administre <b>${dosisAguda}</b> vía oral en este momento en el servicio.</li>`;
+            } else {
+                accionDosis = `<li><span style="color:#d32f2f;">⚠️ <b>No hay antihipertensivos marcados en farmacia.</b> Solicite al paciente conseguir medicamento urgente o refiera al CAP.</span></li>`;
+            }
+
+            recomendacion += `<div style="background-color: #fff9c4; padding:15px; margin-bottom:20px; border-radius:5px; border-left: 5px solid #ff9800; color: #856404;">
+                <h3 style="color:#e65100; margin-top:0;">⚠️ ALERTA: Presión Arterial Marcadamente Elevada Asintomática (CIE-10: I10.X)</h3>
+                <p>El paciente presenta PA ≥180/120 mmHg pero <b>NO presenta síntomas de alarma</b>. Manejo sugerido:</p>
+                <ul style="margin-bottom: 0;">
+                    ${accionDosis}
+                    <li>Mantenga al paciente en reposo y en un ambiente tranquilo durante 2 a 3 horas.</li>
+                    <li><b>Controle la presión nuevamente pasada la espera:</b>
+                        <ul style="margin-top: 5px;">
+                            <li>📉 <b>Si la PA desciende y no hay síntomas:</b> Puede enviarlo a casa. Ajuste su esquema ambulatorio (ver abajo) y cite en 2 a 7 días.</li>
+                            <li>📈 <b>Si la PA NO desciende o aparecen síntomas:</b> Refiera de emergencia al hospital.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>`;
+        }
+
         // Recuperar datos para paciente conocido
         const actuales = Array.from(document.querySelectorAll('.medActual:checked')).map(cb => cb.value);
         const advTos = document.getElementById('advTos').checked;
@@ -556,25 +599,6 @@
              return;
         }
 
-        // INYECTAR AVISO DE URGENCIA HIPERTENSIVA (MARCADAMENTE ELEVADA ASINTOMÁTICA)
-        if (esCrisisHTA && !tieneAlarmas) {
-            enviarEstadistica("HTA", "Alerta", "PA Marcadamente Elevada Asintomática");
-            recomendacion += `<div style="background-color: #fff9c4; padding:15px; margin-bottom:20px; border-radius:5px; border-left: 5px solid #ff9800; color: #856404;">
-                <h3 style="color:#e65100; margin-top:0;">⚠️ ALERTA: Presión Arterial Marcadamente Elevada Asintomática (CIE-10: I10.X)</h3>
-                <p>El paciente presenta PA ≥180/120 mmHg pero <b>NO presenta síntomas de alarma</b>. Manejo sugerido:</p>
-                <ul style="margin-bottom: 0;">
-                    <li>Administre una dosis del medicamento oral sugerido abajo <b>en este momento en el servicio</b>.</li>
-                    <li>Mantenga al paciente en reposo y en un ambiente tranquilo durante 2 a 3 horas.</li>
-                    <li><b>Controle la presión nuevamente pasada la espera:</b>
-                        <ul style="margin-top: 5px;">
-                            <li>📉 <b>Si la PA desciende:</b> Envíelo a casa con el esquema ambulatorio y cite en 2 a 7 días.</li>
-                            <li>📈 <b>Si la PA NO desciende o aparecen síntomas:</b> Refiera de emergencia al hospital.</li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>`;
-        }
-
         // Evaluar Checklist de Seguridad
         const checksSeguridad = document.querySelectorAll('.chk-seguridad');
         let checklistCompleto = true;
@@ -588,6 +612,20 @@
         let isEnalMax = actuales.includes("Enalapril 20mg");
         let isAmloMax = actuales.includes("Amlodipino 10mg");
         let isHctzMax = actuales.includes("Hidroclorotiazida 25mg") || actuales.includes("Hidroclorotiazida 50mg");
+
+        // --- NUEVA LÓGICA DE SUSTITUCIÓN INTELIGENTE (IECA <-> ARA-II) ---
+        let switchMsg = "";
+        if (takesEnal && !inv.includes("Enalapril 20mg") && inv.includes("Irbersartan 150mg")) {
+            takesEnal = false;
+            takesIrbe = true;
+            isIrbeMax = isEnalMax;
+            switchMsg = "<div style='background-color:#e8f5e9; border-left:4px solid #4caf50; padding:10px; margin-bottom:15px; border-radius:4px; color:#1b5e20;'>🔄 <b>Sustitución Inteligente por Desabastecimiento:</b> No hay Enalapril en farmacia. El sistema lo ha sustituido automáticamente por <b>Irbesartán</b> (misma familia, misma función) para calcular su próximo escalón.</div>";
+        } else if (takesIrbe && !inv.includes("Irbersartan 150mg") && inv.includes("Enalapril 20mg")) {
+            takesIrbe = false;
+            takesEnal = true;
+            isEnalMax = isIrbeMax;
+            switchMsg = "<div style='background-color:#e8f5e9; border-left:4px solid #4caf50; padding:10px; margin-bottom:15px; border-radius:4px; color:#1b5e20;'>🔄 <b>Sustitución Inteligente por Desabastecimiento:</b> No hay Irbesartán en farmacia. El sistema lo ha sustituido automáticamente por <b>Enalapril</b> (misma familia, misma función) para calcular su próximo escalón.</div>";
+        }
 
         let numMeds = (takesIrbe ? 1 : 0) + (takesEnal ? 1 : 0) + (takesAmlo ? 1 : 0) + (takesHctz ? 1 : 0);
 
@@ -708,6 +746,7 @@
                     // b) Intensificación Estructurada ("El Túnel")
                     else {
                         recomendacion += "<strong>Paciente Ya Conocido (Intensificación Autorizada):</strong><br><br>";
+                        recomendacion += switchMsg; // Inyecta el aviso de sustitución si ocurrió.
                         
                         let textoAdversos = evaluarEfectosAdversos(actuales, advTos, advEdema);
                         if (textoAdversos !== "") {
