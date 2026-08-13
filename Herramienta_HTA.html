@@ -517,27 +517,21 @@
         let recomendacion = "";
         let accionParaModoMedico = "";
 
-        // 1. EVALUAR BANDERAS ROJAS Y URGENCIAS
+        // 1. EVALUAR BANDERAS ROJAS (EMERGENCIA)
         const tieneAlarmas = Array.from(document.querySelectorAll('.chk-alarma:checked')).length > 0;
         
-        if (tieneAlarmas || esCrisisHTA) {
-            enviarEstadistica("HTA", "Alerta", "Emergencia/Urgencia detectada");
-            let tipoEmergencia = "";
-            if (tieneAlarmas) {
-                tipoEmergencia = "EMERGENCIA HIPERTENSIVA (Daño agudo a Órgano Blanco detectado por los síntomas marcados).";
-            } else if (esCrisisHTA) {
-                tipoEmergencia = "URGENCIA HIPERTENSIVA (PA ≥180/120 without síntomas aparentes).";
-            }
-
+        if (tieneAlarmas) {
+            enviarEstadistica("HTA", "Alerta", "Emergencia detectada");
             recomendacion = `<div class="alert-box" style="padding:15px; margin-bottom:20px; border-radius:5px; border-left: 5px solid #721c24;">
-                <h3 style="color:#721c24; margin-top:0;">🚨 ALERTA CRÍTICA: ${tipoEmergencia}</h3>
-                <ul style="font-size: 1.1em;">
-                    <li><b>ACCIÓN INMEDIATA:</b> NO modifique ni inicie tratamiento en el puesto de salud.</li>
+                <h3 style="color:#721c24; margin-top:0;">🚨 ALERTA CRÍTICA: EMERGENCIA HIPERTENSIVA</h3>
+                <p style="margin-bottom: 8px;"><b>Daño agudo a Órgano Blanco detectado por los síntomas marcados.</b></p>
+                <ul style="font-size: 1.1em; margin-top: 0;">
+                    <li><b>ACCIÓN INMEDIATA:</b> NO modifique ni inicie tratamiento vía oral en el puesto de salud.</li>
                     <li><b>REFIERA INMEDIATAMENTE</b> al centro de atención de mayor capacidad más cercano (Hospital/CAP).</li>
                 </ul>
             </div>`;
             
-            resBox.innerHTML = recomendacion + generarModoMedico("Referencia inmediata por niveles de crisis hipertensiva o daño a órgano blanco.") + btnRecargar;
+            resBox.innerHTML = recomendacion + generarModoMedico("Referencia inmediata por emergencia hipertensiva con daño a órgano blanco.") + btnRecargar;
             resBox.classList.remove('hidden');
             return;
         }
@@ -560,6 +554,25 @@
              </div>` + generarModoMedico("Bloqueo de seguridad: Evitar doble bloqueo del SRAA (Contraindicación absoluta).") + btnRecargar;
              resBox.classList.remove('hidden');
              return;
+        }
+
+        // INYECTAR AVISO DE URGENCIA HIPERTENSIVA (MARCADAMENTE ELEVADA ASINTOMÁTICA)
+        if (esCrisisHTA && !tieneAlarmas) {
+            enviarEstadistica("HTA", "Alerta", "PA Marcadamente Elevada Asintomática");
+            recomendacion += `<div style="background-color: #fff9c4; padding:15px; margin-bottom:20px; border-radius:5px; border-left: 5px solid #ff9800; color: #856404;">
+                <h3 style="color:#e65100; margin-top:0;">⚠️ ALERTA: Presión Arterial Marcadamente Elevada Asintomática (CIE-10: I10.X)</h3>
+                <p>El paciente presenta PA ≥180/120 mmHg pero <b>NO presenta síntomas de alarma</b>. Manejo sugerido:</p>
+                <ul style="margin-bottom: 0;">
+                    <li>Administre una dosis del medicamento oral sugerido abajo <b>en este momento en el servicio</b>.</li>
+                    <li>Mantenga al paciente en reposo y en un ambiente tranquilo durante 2 a 3 horas.</li>
+                    <li><b>Controle la presión nuevamente pasada la espera:</b>
+                        <ul style="margin-top: 5px;">
+                            <li>📉 <b>Si la PA desciende:</b> Envíelo a casa con el esquema ambulatorio y cite en 2 a 7 días.</li>
+                            <li>📈 <b>Si la PA NO desciende o aparecen síntomas:</b> Refiera de emergencia al hospital.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>`;
         }
 
         // Evaluar Checklist de Seguridad
@@ -587,7 +600,7 @@
             </div>`;
             
             if (pacienteConocido === 'NO') {
-                recomendacion = warnHipo + "<strong>Paciente sin tratamiento previo:</strong><br>Aconseje hidratación. Evalúe deshidratación, infecciones o sangrado. No inicie antihipertensivos.";
+                recomendacion += warnHipo + "<strong>Paciente sin tratamiento previo:</strong><br>Aconseje hidratación. Evalúe deshidratación, infecciones o sangrado. No inicie antihipertensivos.";
                 accionParaModoMedico = "Hipotensión en paciente de primera vez. Tratamiento conservador e hidratación.";
             } else {
                 let recoBaja = "<strong>Indicación (Desescalonamiento / Step Down):</strong><br>El paciente presenta sobrecontrol. Reducir carga farmacológica para evitar síncopes.<br><br>";
@@ -613,13 +626,13 @@
                     }
                     accionParaModoMedico = "Desescalonamiento estructurado por sobretratamiento sintomático/asintomático.";
                 }
-                recomendacion = warnHipo + recoBaja;
+                recomendacion += warnHipo + recoBaja;
             }
         } 
         // 3. PACIENTE EN META
         else if (enMeta) {
             enviarEstadistica("HTA", "Control", "En metas");
-            recomendacion = "<strong>✅ PACIENTE EN METAS</strong><br><br>";
+            recomendacion += "<strong>✅ PACIENTE EN METAS</strong><br><br>";
             accionParaModoMedico = "Mantener esquema actual.";
             
             let textoAdversos = evaluarEfectosAdversos(actuales, advTos, advEdema);
@@ -635,7 +648,7 @@
         else {
             if (gradoHTA === "NORMAL" || gradoHTA === "ELEVADA") {
                 enviarEstadistica("HTA", "Control", "No HTA (Estilo de vida)");
-                recomendacion = "Priorice cambios en el estilo de vida. Reevaluar periódicamente.";
+                recomendacion += "Priorice cambios en el estilo de vida. Reevaluar periódicamente.";
                 accionParaModoMedico = "Manejo no farmacológico (PA no cumple criterios de HTA).";
             } else {
                 // LÓGICA PACIENTE NUEVO
@@ -643,7 +656,7 @@
                     let opciones = [];
                     if (gradoHTA === "HTA1") {
                         enviarEstadistica("HTA", "Tratamiento", "Escalón 1 (Paciente Nuevo)");
-                        recomendacion = "<strong>Tratamiento Inicial (Paso 1 - Monoterapia a dosis inicial):</strong><br><br>";
+                        recomendacion += "<strong>Tratamiento Inicial (Paso 1 - Monoterapia a dosis inicial):</strong><br><br>";
                         let i = getDosis("Irbersartan", inv, 1), e = getDosis("Enalapril", inv, 1);
                         let a = getDosis("Amlodipino", inv, 1), h = getDosis("Hidroclorotiazida", inv, 1);
                         
@@ -655,7 +668,7 @@
                         accionParaModoMedico = "Inicio de tratamiento farmacológico escalón 1 (Monoterapia).";
                     } else if (gradoHTA === "HTA2") {
                         enviarEstadistica("HTA", "Tratamiento", "Escalón 3 (Terapia Dual Inicial)");
-                        recomendacion = "<strong>Tratamiento Inicial (Paso 3 - Terapia Dual a dosis media):</strong><br><br>";
+                        recomendacion += "<strong>Tratamiento Inicial (Paso 3 - Terapia Dual a dosis media):</strong><br><br>";
                         let i = getDosis("Irbersartan", inv, 1), e = getDosis("Enalapril", inv, 1);
                         let a = getDosis("Amlodipino", inv, 1), h = getDosis("Hidroclorotiazida", inv, 1);
                         
@@ -694,7 +707,7 @@
                     } 
                     // b) Intensificación Estructurada ("El Túnel")
                     else {
-                        recomendacion = "<strong>Paciente Ya Conocido (Intensificación Autorizada):</strong><br><br>";
+                        recomendacion += "<strong>Paciente Ya Conocido (Intensificación Autorizada):</strong><br><br>";
                         
                         let textoAdversos = evaluarEfectosAdversos(actuales, advTos, advEdema);
                         if (textoAdversos !== "") {
