@@ -240,7 +240,7 @@
 
         </div>
 
-        <button class="btn" onclick="calcularTratamiento()" style="background-color: #28a745; margin-top: 20px;">Generar Recomendación de Tratamiento</button>
+        <button id="btnEvaluarTx" class="btn" onclick="calcularTratamiento()" style="background-color: #28a745; margin-top: 20px;">Generar Recomendación de Tratamiento</button>
         <div id="resultadoTx" class="result-box hidden"></div>
     </div>
 
@@ -499,6 +499,17 @@
     }
 
     function calcularTratamiento() {
+        // --- INICIO DE BLOQUEO DE BOTÓN ---
+        let btnTx = document.getElementById("btnEvaluarTx");
+        btnTx.disabled = true;
+        btnTx.style.backgroundColor = "#cccccc";
+        btnTx.style.color = "#666666";
+        btnTx.style.cursor = "not-allowed";
+        btnTx.innerText = "Calculado. Vea el resultado abajo.";
+        // --- FIN DE BLOQUEO ---
+
+        const btnRecargar = `<button onclick="location.reload()" style="background-color: #ff9800; color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-size: 16px; font-weight: bold; margin-top: 25px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">🔄 PRESIONE PARA UNA NUEVA CONSULTA</button>`;
+
         const inv = Array.from(document.querySelectorAll('#inventario input:checked')).map(cb => cb.value);
         const pacienteConocido = document.getElementById('pacienteConocido').value;
         const resBox = document.getElementById('resultadoTx');
@@ -526,7 +537,7 @@
                 </ul>
             </div>`;
             
-            resBox.innerHTML = recomendacion + generarModoMedico("Referencia inmediata por niveles de crisis hipertensiva o daño a órgano blanco.");
+            resBox.innerHTML = recomendacion + generarModoMedico("Referencia inmediata por niveles de crisis hipertensiva o daño a órgano blanco.") + btnRecargar;
             resBox.classList.remove('hidden');
             return;
         }
@@ -546,7 +557,7 @@
                 <h3 style="color:#721c24; margin-top:0;">🚨 ERROR DE PRESCRIPCIÓN</h3>
                 Ha marcado que el paciente toma Enalapril e Irbesartán al mismo tiempo. Estos medicamentos pertenecen a clases que <b>NUNCA DEBEN COMBINARSE</b> debido al alto riesgo de daño renal severo e hiperpotasemia.<br><br>
                 <b>Acción:</b> Suspenda inmediatamente uno de los dos.
-             </div>` + generarModoMedico("Bloqueo de seguridad: Evitar doble bloqueo del SRAA (Contraindicación absoluta).");
+             </div>` + generarModoMedico("Bloqueo de seguridad: Evitar doble bloqueo del SRAA (Contraindicación absoluta).") + btnRecargar;
              resBox.classList.remove('hidden');
              return;
         }
@@ -819,7 +830,7 @@
             }
         }
 
-        resBox.innerHTML = recomendacion + generarModoMedico(accionParaModoMedico);
+        resBox.innerHTML = recomendacion + generarModoMedico(accionParaModoMedico) + btnRecargar;
         resBox.classList.remove('hidden');
     }
 
