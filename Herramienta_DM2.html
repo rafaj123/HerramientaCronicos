@@ -217,7 +217,7 @@
             </select>
         </div>
 
-        <button onclick="evaluarDiagnostico()">Evaluar Diagnóstico</button>
+        <button id="btnEvaluarDx" onclick="evaluarDiagnostico()">Evaluar Diagnóstico</button>
     </div>
 
     <!-- ================= MÓDULO 2: CONTROL Y TRATAMIENTO ================= -->
@@ -331,7 +331,7 @@
             </select>
         </div>
 
-        <button onclick="evaluarTratamiento()">Calcular Control y Recomendaciones</button>
+        <button id="btnEvaluarTx" onclick="evaluarTratamiento()">Calcular Control y Recomendaciones</button>
     </div>
 
     <!-- CAJA DE RESULTADOS -->
@@ -524,6 +524,15 @@
         let sintAct = document.getElementById('sintomasDx').value;
         
         if(!valorAct) { alert("Ingrese el valor numérico actual."); return; }
+
+        // --- INICIO DE BLOQUEO DE BOTÓN ---
+        let btnDx = document.getElementById("btnEvaluarDx");
+        btnDx.disabled = true;
+        btnDx.style.backgroundColor = "#cccccc";
+        btnDx.style.color = "#666666";
+        btnDx.style.cursor = "not-allowed";
+        btnDx.innerText = "Calculado. Vea el resultado abajo.";
+        // --- FIN DE BLOQUEO ---
         
         let estAct = obtenerEstadoDx(tipoAct, valorAct, sintAct);
         let msj = "";
@@ -561,28 +570,29 @@
             
             if(document.getElementById('chkAntAyunas').checked) {
                 let val = parseFloat(document.getElementById('valAntAyunas').value);
-                if(!val) { alert("Ingrese el valor de la prueba en ayunas anterior."); return; }
+                if(!val) { alert("Ingrese el valor de la prueba en ayunas anterior."); btnDx.disabled = false; btnDx.style.backgroundColor = "#007bff"; btnDx.innerText = "Evaluar Diagnóstico"; return; }
                 estadosAnt.push(obtenerEstadoDx('ayunas', val, 'no'));
             }
             if(document.getElementById('chkAntAzar').checked) {
                 let val = parseFloat(document.getElementById('valAntAzar').value);
                 let sint = document.getElementById('sintAntAzar').value;
-                if(!val) { alert("Ingrese el valor de la prueba al azar anterior."); return; }
+                if(!val) { alert("Ingrese el valor de la prueba al azar anterior."); btnDx.disabled = false; btnDx.style.backgroundColor = "#007bff"; btnDx.innerText = "Evaluar Diagnóstico"; return; }
                 estadosAnt.push(obtenerEstadoDx('azar', val, sint));
             }
             if(document.getElementById('chkAntPos').checked) {
                 let val = parseFloat(document.getElementById('valAntPos').value);
-                if(!val) { alert("Ingrese el valor de la prueba PTOG anterior."); return; }
+                if(!val) { alert("Ingrese el valor de la prueba PTOG anterior."); btnDx.disabled = false; btnDx.style.backgroundColor = "#007bff"; btnDx.innerText = "Evaluar Diagnóstico"; return; }
                 estadosAnt.push(obtenerEstadoDx('posprandial', val, 'no'));
             }
             if(document.getElementById('chkAntHb').checked) {
                 let val = parseFloat(document.getElementById('valAntHb').value);
-                if(!val) { alert("Ingrese el valor de la HbA1c anterior."); return; }
+                if(!val) { alert("Ingrese el valor de la HbA1c anterior."); btnDx.disabled = false; btnDx.style.backgroundColor = "#007bff"; btnDx.innerText = "Evaluar Diagnóstico"; return; }
                 estadosAnt.push(obtenerEstadoDx('hba1c', val, 'no'));
             }
 
             if(estadosAnt.length === 0) {
                 alert("Si seleccionó que el paciente trae pruebas anteriores, por favor marque y llene al menos una.");
+                btnDx.disabled = false; btnDx.style.backgroundColor = "#007bff"; btnDx.style.color = "#fff"; btnDx.style.cursor = "pointer"; btnDx.innerText = "Evaluar Diagnóstico";
                 return;
             }
 
@@ -630,6 +640,12 @@
         </div>`;
 
         htmlFinal += generarModoMedico(logicaMedico, "Vía Clínica MSPAS/HEARTS, versión 2026. Criterios ADA.");
+        
+        // --- INYECCIÓN DEL BOTÓN DE NUEVA CONSULTA (Si no tiene que pasar a tratamiento obligatorio) ---
+        if(!esDiabetico) {
+            htmlFinal += `<button onclick="location.reload()" style="background-color: #ff9800; color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-size: 16px; font-weight: bold; margin-top: 25px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">🔄 PRESIONE PARA UNA NUEVA CONSULTA</button>`;
+        }
+
         mostrarResultadoDx(htmlFinal, tipoBanner);
     }
 
@@ -681,6 +697,15 @@
         let met = document.getElementById('txMetformina').value;
         
         if(!valor) { alert("Ingrese el valor numérico actual."); return; }
+
+        // --- INICIO DE BLOQUEO DE BOTÓN ---
+        let btnTx = document.getElementById("btnEvaluarTx");
+        btnTx.disabled = true;
+        btnTx.style.backgroundColor = "#cccccc";
+        btnTx.style.color = "#666666";
+        btnTx.style.cursor = "not-allowed";
+        btnTx.innerText = "Calculado. Vea el resultado abajo.";
+        // --- FIN DE BLOQUEO ---
 
         let box = document.getElementById('resultado-box');
         let banner = document.getElementById('estado-control-banner');
@@ -784,6 +809,10 @@
 
             htmlRecos += "</ul>";
             htmlRecos += generarModoMedico(logicaMedico, "Vía Clínica MSPAS/ADA 2026. Manejo de Prediabetes.");
+            
+            // --- INYECCIÓN DEL BOTÓN DE NUEVA CONSULTA ---
+            htmlRecos += `<button onclick="location.reload()" style="background-color: #ff9800; color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-size: 16px; font-weight: bold; margin-top: 25px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">🔄 PRESIONE PARA UNA NUEVA CONSULTA</button>`;
+
             contenido.innerHTML = htmlRecos;
             return;
         }
@@ -1013,6 +1042,10 @@
 
         htmlRecos += "</ul>";
         htmlRecos += generarModoMedico(logicaMedico, "Vía Clínica MSPAS/HEARTS, versión 2026. Criterios ADA.");
+        
+        // --- INYECCIÓN DEL BOTÓN DE NUEVA CONSULTA ---
+        htmlRecos += `<button onclick="location.reload()" style="background-color: #ff9800; color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-size: 16px; font-weight: bold; margin-top: 25px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">🔄 PRESIONE PARA UNA NUEVA CONSULTA</button>`;
+
         contenido.innerHTML = htmlRecos;
     }
 </script>
