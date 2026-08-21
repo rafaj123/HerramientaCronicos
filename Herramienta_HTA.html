@@ -166,6 +166,7 @@
             <option value="bajo">Riesgo Bajo (Menor a 5%) 🟢</option>
             <option value="moderado">Riesgo Moderado (5% a <10%) 🟡</option>
             <option value="alto">Riesgo Alto (≥10%, Diabetes Mellitus, Enf. Renal o Antecedente de infarto/derrame) 🟠/🔴/🟣</option>
+            <option value="edad_no_validada">Edad no validada según calculadora (<40 o >74 años sin DM/ERC/Evento CV) ⚪</option>
         </select>
         
         <div id="resultadoMeta" class="result-box hidden" style="margin-top: 15px;"></div>
@@ -435,7 +436,13 @@
         }
 
         const boxMeta = document.getElementById('resultadoMeta');
-        let textoMeta = `Objetivo de Presión Arterial según RCV: <strong><${metaSysG}/${metaDiaG} mmHg</strong><br>`;
+        let textoMeta = "";
+        
+        if (rcv === 'edad_no_validada') {
+            textoMeta += `<div style="font-size:0.9em; margin-bottom:8px; color:#444;"><em>ℹ️ Por edad fuera de rango (<40 o >74 años sin comorbilidad grave), aplica meta clínica estándar de seguridad.</em></div>`;
+        }
+        
+        textoMeta += `Objetivo de Presión Arterial según RCV: <strong><${metaSysG}/${metaDiaG} mmHg</strong><br>`;
         
         if (gradoHTA === 'BAJA') {
             enMeta = false;
